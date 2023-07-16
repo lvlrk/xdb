@@ -1,7 +1,7 @@
-#define RELEASE
+#define RELEASE // define or undefine to toggle
 #ifdef RELEASE
 #define VERSION_MAX 0
-#define VERSION_MIN 1
+#define VERSION_MIN 2
 
 #include <iostream>
 #include <string>
@@ -44,7 +44,8 @@ int main(int argc, char **argv)
 }
 #endif
 
-// #define DEBUG
+#ifndef RELEASE
+#define DEBUG
 #ifdef DEBUG
 #include "xdb.h"
 
@@ -59,4 +60,5 @@ int main(int argc, char **argv)
 
   return 0;
 }
+#endif
 #endif

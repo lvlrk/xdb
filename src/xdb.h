@@ -14,13 +14,6 @@ typedef mode_t int;
 #include <vector> // std::vector
 #include <memory> // std::unique_ptr
 
-typedef struct XdbHeader {
-  char magic[4]; // subject to change, currently "xdba"
-  int tagCount;
-  int entryCount;
-  int host; // 0 for linux, 1 for other
-} XdbHeader_t; // 12 bytes
-
 typedef struct XdbStat { // contains 'portable' stat info
   mode_t mode; // will be 0 on NOT PENGUIN OS >:( L windows
   time_t atime;
@@ -31,18 +24,12 @@ typedef struct XdbStat { // contains 'portable' stat info
 typedef struct XdbEntry { // note: all char* are cstrings;
   // will read from binary until 0
   XdbStat_t stat; // custom stat metadata
-  char *path;
-  char *filename;
-  char *name; // generated 'cleaner' filename
+  std::string path;
+  std::string filename;
+  std::string name; // generated 'cleaner' filename
   int bufferSize;
   char *buffer; // file data buffer
 } XdbEntry_t;
-
-typedef struct XdbFile { // raw struct for file format
-  XdbHeader_t header;
-  char **tags;
-  XdbEntry_t *entries;
-} XdbFile_t;
 
 class Xdb {
 public:
@@ -62,13 +49,7 @@ public:
 
   // returns entry created from filename; returns nullptr on error
   XdbEntry_t *EntryFromFilename(const std::string& filename);
-
-  void PopulateFileHeader();
-  void PopulateTags();
-  void PopulateEntries();
 private:
   std::vector<std::string> tags;
   std::vector<XdbEntry_t> entries;
-
-  XdbFile_t file;
 };
