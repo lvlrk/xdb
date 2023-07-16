@@ -1,3 +1,8 @@
+# old
 old/*.o
 old/xdb
 old/test.xdb
+
+*.o
+xdb
+*.xdb
