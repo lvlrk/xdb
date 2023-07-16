@@ -1,0 +1,137 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "xdb.h"
+
+xdb_file *xdb_open() {
+  xdb_file *xp = NULL;
+  xp = malloc(sizeof(xdb_file));
+  if(!xp) return NULL;
+
+  memcpy(xp->header.magic, "XDBA", 4);
+  xp->header.tag_count = 0;
+  xp->header.file_count = 0;
+  xp->header.zero = 0;
+
+  xp->tags = NULL;
+  xp->tags = malloc(sizeof(xdb_tag));
+  if(!xp->tags) goto error;
+
+  xp->file_tables = NULL;
+  xp->file_tables = malloc(sizeof(xdb_table));
+  if(!xp->file_tables) goto error;
+
+  xp->data = NULL;
+  xp->data = malloc(sizeof(char*));
+  if(!xp->data) goto error;
+
+  return xp;
+error:
+  if(xp) xdb_close(xp);
+
+  return NULL;
+}
+
+int xdb_append(xdb_file *xp, char *filename) {
+  if(!xp || !filename) return 1;
+
+  xp->header.file_count++;
+
+  FILE *fp = NULL;
+  char *buf = NULL;
+  fp = fopen(filename, "rb");
+  if(!fp) goto error;
+
+  fseek(fp, 0, SEEK_END);
+  int size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+
+  buf = malloc(size);
+  if(!buf) goto error;
+
+  fread(buf, 1, size, fp);
+
+  fclose(fp);
+
+  xp->file_tables = realloc(xp->file_tables, xp->header.file_count * sizeof(xdb_table));
+  if(!xp->file_tables) goto error;
+
+  xdb_table *table = &xp->file_tables[xp->header.file_count - 1];
+
+  int tmp = sizeof(xdb_header);
+  tmp += sizeof(xdb_table) * xp->header.file_count;
+  for(int i = 0; i < xp->header.file_count - 1; i++) tmp += xp->file_tables[i].size;
+
+  table->off = 0; // will be set in xdb_write()
+  table->size = size;
+  table->tag_index = 0;
+  strncpy(table->name, filename, 244);
+
+  xp->data = realloc(xp->data, sizeof(char*) * xp->header.file_count);
+  if(!xp->data) goto error;
+
+  char **data = &xp->data[xp->header.file_count - 1];
+  *data = malloc(size);
+  if(!(*data)) goto error;
+
+  memcpy(*data, buf, size);
+
+  return 0;
+error:
+  if(fp) fclose(fp);
+  if(buf) free(buf);
+  if(xp) xdb_close(xp);
+
+  return 1;
+}
+
+int xdb_write(xdb_file *xp, char *filename) {
+  if(!xp || !filename) return 1;
+  FILE *fp = NULL;
+  fp = fopen(filename, "wb");
+  if(!fp) goto error;
+
+  fwrite(&xp->header, 1, sizeof(xdb_header), fp);
+
+  int tmp = sizeof(xdb_header);
+  tmp += sizeof(xdb_tag) * xp->header.tag_count;
+  tmp += sizeof(xdb_table) * xp->header.file_count;
+
+  for(int i = 0; i < xp->header.file_count; i++) {
+    xp->file_tables[i].off = tmp;
+
+    for(int j = 0; j < xp->header.file_count - 1; j++) tmp += xp->file_tables[j].size;
+  }
+
+  for(int i = 0; i < xp->header.file_count; i++) {
+    fwrite(&xp->file_tables[i], 1, sizeof(xdb_table), fp);
+  }
+
+  for(int i = 0; i < xp->header.file_count; i++) {
+    fwrite(xp->data[i], 1, xp->file_tables[i].size, fp);
+  }
+
+  fclose(fp);
+
+  return 0;
+error:
+  if(fp) fclose(fp);
+
+  return 1;
+}
+
+void xdb_close(xdb_file *xp) {
+  if(xp) {
+    if(xp->tags) free(xp->tags);
+    if(xp->file_tables) free(xp->file_tables);
+    if(xp->data) {
+      for(int i = 0; i < xp->header.file_count; i++) {
+        if(xp->data[i]) free(xp->data[i]);
+      }
+
+      free(xp->data);
+    }
+
+    free(xp);
+  }
+}
