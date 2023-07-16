@@ -5,14 +5,14 @@
 #include "debug.h"
 
 #define VER_MAX 0
-#define VER_MIN 1
+#define VER_MIN 3
 
 int main(int argc, char **argv) {
   const char *usage = "Usage: xdb [-?vctd]\n"
     "\t[-f] <file>\n"
     "\txdb [--help]\n";
   const char *help = "Usage: xdb [OPTION...] [FILE...]\n"
-    "The best FOSS ____ viewer\n\n"
+    "The best FOSS p*rn viewer\n\n"
     "Examples:\n"
     "  xdb -f archive.xdb -c foo bar  # Create archive.xdb from files foo and bar.\n\n"
     "  -?, --help              display this help and exit\n"
