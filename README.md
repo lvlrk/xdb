@@ -10,4 +10,8 @@ Version: 0.1 [debug build]
 This idea was created by me and my boi avecp
 Currently not finished
 
+# Build (linux-only)
+Run `$ make`
+bam it's done
+
 ### Sunday 7/16/23 lvlrk
