@@ -27,7 +27,6 @@ XdbEntry_t *Xdb::EntryFromFilename(const std::string& filename) {
   XdbEntry_t *entry = new XdbEntry_t;
 
   entry->stat = *XdbStatFromFilename(filename);
-  entry->path = std::string(GetDirectoryPath(filename.c_str()));
   entry->filename = filename;
   entry->name = GenerateName(filename);
   entry->bufferSize = 0; // for now
@@ -87,11 +86,22 @@ int Xdb::WriteToFile(const std::string& filename) {
   }
 
   for(int i = 0; i < entries.size(); i++) {
-    outf.write(reinterpret_cast<char*>(&entries[i].stat), sizeof(XdbStat_t));
-    outf.write(entries[i].path.c_str(), entries[i].path.size() + 1);
+    // stat
+    tmp = entries[i].stat.mode;
+    outf.write(reinterpret_cast<char*>(&tmp), 4);
+    tmp = entries[i].stat.atime;
+    outf.write(reinterpret_cast<char*>(&tmp), 4);
+    tmp = entries[i].stat.mtime;
+    outf.write(reinterpret_cast<char*>(&tmp), 4);
+    tmp = entries[i].stat.ctime;
+    outf.write(reinterpret_cast<char*>(&tmp), 4);
+
+    // strings
     outf.write(entries[i].filename.c_str(), entries[i].filename.size() + 1);
     outf.write(entries[i].name.c_str(), entries[i].name.size() + 1);
     tmp = entries[i].bufferSize;
+
+    // buffer
     outf.write(reinterpret_cast<char*>(&tmp), 4);
     outf.write(entries[i].buffer, entries[i].bufferSize);
   }

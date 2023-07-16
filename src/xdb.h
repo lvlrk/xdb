@@ -24,7 +24,6 @@ typedef struct XdbStat { // contains 'portable' stat info
 typedef struct XdbEntry { // note: all char* are cstrings;
   // will read from binary until 0
   XdbStat_t stat; // custom stat metadata
-  std::string path;
   std::string filename;
   std::string name; // generated 'cleaner' filename
   int bufferSize;
