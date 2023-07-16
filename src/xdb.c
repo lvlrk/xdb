@@ -7,7 +7,10 @@
 xdb_file *xdb_init() {
   xdb_file *xp = NULL;
   xp = malloc(sizeof(xdb_file));
-  if(!xp) return NULL;
+  if(!xp) {
+    debug("cannot alloc xp");
+    return NULL;
+  }
 
   memcpy(xp->header.magic, "XDBA", 4);
   xp->header.tag_count = 0;
@@ -16,39 +19,66 @@ xdb_file *xdb_init() {
 
   xp->tags = NULL;
   xp->tags = malloc(sizeof(xdb_tag));
-  if(!xp->tags) goto error;
+  if(!xp->tags) {
+    debug("cannot alloc tags");
+    goto error;
+  }
 
   xp->file_tables = NULL;
   xp->file_tables = malloc(sizeof(xdb_table));
-  if(!xp->file_tables) goto error;
+  if(!xp->file_tables) {
+    debug("cannot alloc tables");
+    goto error;
+  }
 
   xp->data = NULL;
   xp->data = malloc(sizeof(char*));
-  if(!xp->data) goto error;
+  if(!xp->data) {
+    debug("cannot alloc data");
+    goto error;
+  }
+
+  debug("no error");
 
   return xp;
 error:
   if(xp) xdb_free(xp);
 
+  debug("error");
+
   return NULL;
 }
 
 int xdb_append(xdb_file *xp, char *filename) {
-  if(!xp || !filename) return 1;
+  if(!xp || !filename) {
+    debug("invalid xp or filename");
+    return 1;
+  }
 
   xp->header.file_count++;
 
   FILE *fp = NULL;
   char *buf = NULL;
   fp = fopen(filename, "rb");
-  if(!fp) goto error;
+  if(!fp) {
+    debug("cant open file");
+    goto error;
+  }
 
   fseek(fp, 0, SEEK_END);
   int size = ftell(fp);
+  if(size < 1) {
+    debug("size small");
+    goto error;
+  }
   fseek(fp, 0, SEEK_SET);
 
   buf = malloc(size);
-  if(!buf) goto error;
+  if(!buf) {
+    debug("bad buffer");
+    goto error;
+  }
+  // will return to tomorrow on 7/16
 
   fread(buf, 1, size, fp);
 
@@ -156,51 +186,52 @@ xdb_file *xdb_open(char *filename) {
 
   fread(magic, 1, 4, fp);
 
-  debug("a");
+  // debug checkpoints to detect segfaults / errors cause im a dumbass
+  debug("before magic check");
   if(memcmp(magic, "XDBA", 4)) goto error;
-  debug("b");
+  debug("after magic check");
 
   fseek(fp, 0, SEEK_SET);
 
   fread(&xp->header, 1, sizeof(xdb_header), fp);
-  debug("c");
+  debug("after header read");
 
   xp->tags = realloc(xp->tags, sizeof(xdb_tag) * xp->header.tag_count);
   if(!xp->tags && xp->header.tag_count > 0) goto error;
-  debug("d");
+  debug("after tags alloc");
 
   for(int i = 0; i < xp->header.tag_count; i++) {
     fread(&xp->tags[i], 1, sizeof(xdb_tag), fp);
   }
 
-  debug("e");
+  debug("after tags read");
 
   xp->file_tables = realloc(xp->file_tables, sizeof(xdb_table) * xp->header.file_count);
   if(!xp->file_tables) goto error;
 
-  debug("f");
+  debug("after file table alloc");
 
   for(int i = 0; i < xp->header.file_count; i++) {
     fread(&xp->file_tables[i], 1, sizeof(xdb_table), fp);
   }
 
-  debug("g");
+  debug("after tables read");
 
   xp->data = realloc(xp->data, sizeof(char*) * xp->header.file_count);
   if(!xp->data) goto error;
 
-  debug("h");
+  debug("after master data alloc");
 
   for(int i = 0; i < xp->header.file_count; i++) {
     xp->data[i] = malloc(xp->file_tables[i].size);
     if(!xp->data[i]) goto error;
-    debug("j");
+    debug("after data[i] data alloc");
 
     fread(xp->data[i], 1, xp->file_tables[i].size, fp);
-    debug("i");
+    debug("after data[i] read");
   }
 
-  debug("k");
+  debug("end");
 
   fclose(fp);
 
