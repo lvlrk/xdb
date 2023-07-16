@@ -1,3 +1,3 @@
-*.o
-xdb
-test.xdb
+old/*.o
+old/xdb
+old/test.xdb
