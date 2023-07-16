@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "xdb.h"
+#include "debug.h"
 
-xdb_file *xdb_open() {
+xdb_file *xdb_init() {
   xdb_file *xp = NULL;
   xp = malloc(sizeof(xdb_file));
   if(!xp) return NULL;
@@ -27,7 +28,7 @@ xdb_file *xdb_open() {
 
   return xp;
 error:
-  if(xp) xdb_close(xp);
+  if(xp) xdb_free(xp);
 
   return NULL;
 }
@@ -80,7 +81,7 @@ int xdb_append(xdb_file *xp, char *filename) {
 error:
   if(fp) fclose(fp);
   if(buf) free(buf);
-  if(xp) xdb_close(xp);
+  if(xp) xdb_free(xp);
 
   return 1;
 }
@@ -120,7 +121,7 @@ error:
   return 1;
 }
 
-void xdb_close(xdb_file *xp) {
+void xdb_free(xdb_file *xp) {
   if(xp) {
     if(xp->tags) free(xp->tags);
     if(xp->file_tables) free(xp->file_tables);
@@ -134,4 +135,79 @@ void xdb_close(xdb_file *xp) {
 
     free(xp);
   }
+}
+
+xdb_file *xdb_open(char *filename) {
+  xdb_file *xp = NULL;
+  xp = xdb_init();
+  if(!xp) return NULL;
+
+  FILE *fp = NULL;
+  fp = fopen(filename, "rb");
+  if(!fp) goto error;
+
+  fseek(fp, 0, SEEK_END);
+  int size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+
+  if(size < sizeof(xdb_header)) goto error;
+
+  char magic[4];
+
+  fread(magic, 1, 4, fp);
+
+  debug("a");
+  if(memcmp(magic, "XDBA", 4)) goto error;
+  debug("b");
+
+  fseek(fp, 0, SEEK_SET);
+
+  fread(&xp->header, 1, sizeof(xdb_header), fp);
+  debug("c");
+
+  xp->tags = realloc(xp->tags, sizeof(xdb_tag) * xp->header.tag_count);
+  if(!xp->tags && xp->header.tag_count > 0) goto error;
+  debug("d");
+
+  for(int i = 0; i < xp->header.tag_count; i++) {
+    fread(&xp->tags[i], 1, sizeof(xdb_tag), fp);
+  }
+
+  debug("e");
+
+  xp->file_tables = realloc(xp->file_tables, sizeof(xdb_table) * xp->header.file_count);
+  if(!xp->file_tables) goto error;
+
+  debug("f");
+
+  for(int i = 0; i < xp->header.file_count; i++) {
+    fread(&xp->file_tables[i], 1, sizeof(xdb_table), fp);
+  }
+
+  debug("g");
+
+  xp->data = realloc(xp->data, sizeof(char*) * xp->header.file_count);
+  if(!xp->data) goto error;
+
+  debug("h");
+
+  for(int i = 0; i < xp->header.file_count; i++) {
+    xp->data[i] = malloc(xp->file_tables[i].size);
+    if(!xp->data[i]) goto error;
+    debug("j");
+
+    fread(xp->data[i], 1, xp->file_tables[i].size, fp);
+    debug("i");
+  }
+
+  debug("k");
+
+  fclose(fp);
+
+  return xp;
+error:
+  if(fp) fclose(fp);
+  if(xp) xdb_free(xp);
+
+  return NULL;
 }

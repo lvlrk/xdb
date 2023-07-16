@@ -5,7 +5,7 @@ TARGET = xdb
 
 all: $(TARGET)
 
-build: src/main.c src/xdb.c
+build: src/main.c src/xdb.c src/debug.c
 	$(CC) $(CFLAGS) $^
 
 $(TARGET): build

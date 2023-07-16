@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include "xdb.h"
+#include "debug.h"
 
 #define VER_MAX 0
 #define VER_MIN 1
 
 int main(int argc, char **argv) {
-  const char *usage = "Usage: xdb [-f] <file> ...\n"
+  const char *usage = "Usage: xdb [-?vctd]\n"
+    "\t[-f] <file>\n"
     "\txdb [--help]\n";
   const char *help = "Usage: xdb [OPTION...] [FILE...]\n"
     "The best FOSS ____ viewer\n\n"
@@ -16,7 +18,9 @@ int main(int argc, char **argv) {
     "  -?, --help              display this help and exit\n"
     "  -v, --version           output version information and exit\n"
     "  -f, --file              use xdb file\n"
-    "  -c, --create            create a new xdb file\n";
+    "  -c, --create            create a new xdb file\n"
+    "  -t, --list              list the contents of a xdb file\n"
+    "  -d, --debug             print debug messages\n";
 
   char *file = NULL;
   int file_set = 0;
@@ -36,7 +40,9 @@ int main(int argc, char **argv) {
   }
 
   for(int i = 1; i < argc; i++) {
-    if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-?")) {
+    if(!strcmp(argv[i], "--debug") || !strcmp(argv[i], "-d")) {
+      debug_print = !debug_print;
+    } else if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-?")) {
       fputs(help, stdout);
 
       return 0;
@@ -81,11 +87,16 @@ int main(int argc, char **argv) {
 
           if(file_count < 1) goto err_create_file_args;
 
-          xp = xdb_open();
+          xp = xdb_init();
+          if(xp) {
+            for(int k = 0; k < file_count; k++) xdb_append(xp, files[k]);
+            xdb_write(xp, file);
+          } else {
+            fputs("xdb error: cannot create new xdb file\n", stderr);
+            fputs(usage, stderr);
 
-          for(int k = 0; k < file_count; k++) xdb_append(xp, files[k]);
-
-          xdb_write(xp, file);
+            return 1;
+          }
         } else {
 err_create_file_args:
           fputs("xdb error: required file arguments for -c\n", stderr);
@@ -99,10 +110,24 @@ err_create_file_args:
 
         return 1;
       }
+    } else if(!strcmp(argv[i], "--list") || !strcmp(argv[i], "-t")) {
+      if(file_set) {
+        xp = xdb_open(file);
+        if(xp) {
+          for(int i = 0; i < xp->header.file_count; i++) puts(xp->file_tables[i].name);
+        } else {
+          fputs("xdb error: cannot open xdb file for reading\n", stderr);
+          fputs(usage, stderr);
+
+          return 1;
+        }
+      } else {
+
+      }
     }
   }
 
-  xdb_close(xp);
+  xdb_free(xp);
 
   return 0;
 }

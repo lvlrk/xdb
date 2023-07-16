@@ -26,9 +26,10 @@ typedef struct {
   char **data;
 } xdb_file;
 
-xdb_file *xdb_open();
+xdb_file *xdb_init();
 int xdb_append(xdb_file *xp, char *filename);
 int xdb_write(xdb_file *xp, char *filename);
-void xdb_close(xdb_file *xp);
+xdb_file *xdb_open(char *filename);
+void xdb_free(xdb_file *xp);
 
 #endif
