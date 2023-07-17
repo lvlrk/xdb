@@ -1,5 +1,7 @@
 #include <iostream>
+#include <fmt/core.h>
 #include "ap.h"
+#include "util.h"
 
 bool ArgParser::Option::IsArgTypeSpecial() {
   return (argType == ARG_NONE || argType == ARG_ANY);
@@ -21,6 +23,9 @@ ArgParser::ArgParser(int argc, char **argv)
 {
   this->argc = argc;
   this->argv = argv;
+
+  if(argv[0][0] == '.' && argv[0][1] == *DIRSEP) program = argv[0] + 2;
+  else program = argv[0];
 }
 
 void ArgParser::AddOpt(Option& opt)
@@ -30,38 +35,53 @@ void ArgParser::AddOpt(Option& opt)
 
 void ArgParser::Parse()
 {
-  // int zero = 0,
-  // one = 1;
-  
-  // currently debugging dont judge
-
-  bool *f;
+  char *carg;
+  bool unrecognized;
+  int tmp;
 
   for(int i = 1; i < argc; i++) {
+    unrecognized = false;
+    carg = argv[0];
+    tmp = 0;
+
     if(argv[i][0] == '-' && argv[i][1] == '-') // long boi
     {
+      carg = argv[i] + 2;
+
       for(int j = 0; j < opts.size(); j++)
       {
-        if(std::string(argv[i] + 2) == opts[j].get().longName) {
-          std::cout << "yessir " << opts[j].get().longName << '\n';
+        if(std::string(carg) == opts[j].get().longName) {
           opts[j].get().flag = true;
-        }
-        else std::cout << "unrecognized --" << std::string(argv[i] + 2) << '\n';
+          unrecognized = false;
+        } else
+          unrecognized = true;
+      }
+
+      if(unrecognized) {
+        std::cerr << fmt::format("{}: unrecognized option --{}\n",
+          program, carg);
       }
     }
     else if(argv[i][0] == '-' && argv[i][1] != '-') // shorty
     {
-      for(int j = 1; j < std::string(argv[i]).size(); j++)
+      carg = argv[i] + 1;
+
+      for(int j = 0; j < std::string(carg).size(); j++)
       {
         for(int k = 0; k < opts.size(); k++) {
-          if(argv[i][j] == opts[k].get().shortName) {
-            std::cout << "shorty " << opts[k].get().shortName << '\n';
+          if(carg[j] == opts[k].get().shortName) {
             opts[k].get().flag = true;
-          } else {
-            std::cout << "unrecognized -" << argv[i][j] << '\n';
+            unrecognized = false;
+        } else {
+            unrecognized = true;
+            tmp = j;
           }
         }
-        // std::cout << argv[j] << '\n';
+      }
+
+      if(unrecognized) {
+        std::cerr << fmt::format("{}: unrecognized option -{}\n",
+          program, carg[tmp]);
       }
     }
     else // arg

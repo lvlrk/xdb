@@ -1,10 +1,10 @@
-#define P_RELEASE 0
+#define P_XDB 0
 #define P_DEBUG 1
 #define P_APTEST 2
 
-#define PROG P_APTEST
+#define PROG P_XDB
 
-#if PROG == P_RELEASE
+#if PROG == P_XDB
 #define VERSION_MAX 0
 #define VERSION_MIN 3
 
@@ -12,6 +12,7 @@
 #include <string>
 #include <fmt/core.h>
 #include <vector>
+#include "ap.h"
 
 // arg parser idea
 // {
@@ -26,7 +27,7 @@
 
 int main(int argc, char **argv)
 {
-  const std::string usage = "Usage: xdb [-vg]\n"
+  const std::string usage = "Usage: xdb [-v]\n"
     "\txdb [--help]\n";
   const std::string help = "Usage: xdb [OPTION...] [FILE...]\n"
     "The best FOSS viewer\n\n"
@@ -40,21 +41,25 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  std::string cOpt;
+  ArgParser parser(argc, argv);
 
-  for(int i = 1; i < argc; i++) {
-    cOpt = std::string(argv[i]);
+  ArgParser::Option helpOpt("help", 0, ArgParser::Option::ARG_NONE);
+  ArgParser::Option versionOpt("version", 'v', ArgParser::Option::ARG_NONE);
 
-    if(cOpt == "--help") {
-      std::cout << help;
+  parser.AddOpt(helpOpt);
+  parser.AddOpt(versionOpt);
 
-      return 0;
-    }
-    if(cOpt == "-v" || cOpt == "--version") {
-      std::cout << fmt::format("xdb-{}.{}\n", VERSION_MAX, VERSION_MIN);
+  parser.Parse();
 
-      return 0;
-    }
+  if(helpOpt.flag) {
+    std::cout << help;
+
+    return 0;
+  }
+  else if(versionOpt.flag) {
+    fmt::print("xdb-{}.{}\n", VERSION_MAX, VERSION_MIN);
+
+    return 0;
   }
 
   return 0;
