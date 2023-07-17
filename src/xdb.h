@@ -41,7 +41,7 @@ public:
 
   /*** Utility functions ***/
   // returns xdbstat created from filename; returns nullptr on error
-  struct XdbStat *XdbStatFromFilename(const std::string& filename);
+  XdbStat XdbStatFromFilename(const std::string& filename);
 
   // creates a 'clean' name from filename; returns "" on error
   std::string GenerateName(const std::string& filename);

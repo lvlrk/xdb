@@ -4,19 +4,21 @@
 #include <cstring> // std::strlen (im sorry avecp)
 #include "xdb.h"
 
-struct XdbStat *Xdb::XdbStatFromFilename(const std::string& filename) {
-  if(filename == "") return nullptr;
+XdbStat Xdb::XdbStatFromFilename(const std::string& filename) {
+  XdbStat xdbStat;
 
-  struct XdbStat *xdbStat = new struct XdbStat;
-
-  struct stat *st = new struct stat;
+  struct stat* st;
   stat(filename.c_str(), st);
-  if(st == nullptr) return nullptr;
 
-  xdbStat->mode = st->st_mode;
-  xdbStat->atime = st->st_atime;
-  xdbStat->mtime = st->st_mtime;
-  xdbStat->ctime = st->st_ctime;
+  if(st == nullptr) 
+  {
+      std::cerr << "Failed to get Xdb stat from filename" << std::endl;
+  }
+
+  xdbStat.mode = st->st_mode;
+  xdbStat.atime = st->st_atime;
+  xdbStat.mtime = st->st_mtime;
+  xdbStat.ctime = st->st_ctime;
 
   return xdbStat;
 }
@@ -24,7 +26,7 @@ struct XdbStat *Xdb::XdbStatFromFilename(const std::string& filename) {
 XdbEntry Xdb::EntryFromFilename(const std::string& filename) {
   XdbEntry entry;
 
-  entry.stat = *XdbStatFromFilename(filename);
+  entry.stat = XdbStatFromFilename(filename);
   entry.filename = filename;
   entry.name = GenerateName(filename);
   entry.bufferSize = 0; // for now
