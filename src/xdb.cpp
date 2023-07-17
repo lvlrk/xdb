@@ -21,42 +21,38 @@ struct XdbStat *Xdb::XdbStatFromFilename(const std::string& filename) {
   return xdbStat;
 }
 
-struct XdbEntry *Xdb::EntryFromFilename(const std::string& filename) {
-  if(filename == "") return nullptr;
+XdbEntry Xdb::EntryFromFilename(const std::string& filename) {
+  XdbEntry entry;
 
-  struct XdbEntry *entry = new struct XdbEntry;
-
-  entry->stat = *XdbStatFromFilename(filename);
-  entry->filename = filename;
-  entry->name = GenerateName(filename);
-  entry->bufferSize = 0; // for now
-  entry->buffer = nullptr; // for now
+  entry.stat = *XdbStatFromFilename(filename);
+  entry.filename = filename;
+  entry.name = GenerateName(filename);
+  entry.bufferSize = 0; // for now
+  entry.buffer = nullptr; // for now
   
   std::ifstream inf(filename, std::ios::binary | std::ios::ate);
-  if(!inf.is_open()) goto error;
+  if(!inf.is_open())
+  {
+      std::cerr << "Could not open file " << filename;
+  }
 
-  entry->bufferSize = inf.tellg();
+  entry.bufferSize = inf.tellg();
 
   inf.seekg(0);
 
-  entry->buffer = new char[entry->bufferSize];
+  entry.buffer = new char[entry.bufferSize];
 
-  inf.read(entry->buffer, entry->bufferSize);
+  inf.read(entry.buffer, entry.bufferSize);
 
   inf.close();
 
   return entry;
-error:
-  delete entry;
-  if(inf.is_open()) inf.close();
-
-  return nullptr;
 }
 
 int Xdb::PushBackFilename(const std::string& filename) {
   if(filename == "") return 1;
 
-  entries.push_back(*EntryFromFilename(filename));
+  entries.push_back(EntryFromFilename(filename));
 
   return 0;
 }

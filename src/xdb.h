@@ -47,7 +47,7 @@ public:
   std::string GenerateName(const std::string& filename);
 
   // returns entry created from filename; returns nullptr on error
-  struct XdbEntry *EntryFromFilename(const std::string& filename);
+  XdbEntry EntryFromFilename(const std::string& filename);
 private:
   std::vector<std::string> tags;
   std::vector<struct XdbEntry> entries;
