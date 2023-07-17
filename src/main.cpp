@@ -30,6 +30,8 @@ int Gui(int argc, char **argv) {
 	GuiSetStyle(DEFAULT, TEXT_SIZE, fontSize);
 
   while(!WindowShouldClose()) {
+    ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+
     if(IsKeyPressed(KEY_LEFT)) {
       if(styleIdx - 1 < 0) styleIdx = STYLE_COUNT - 1;
       else styleIdx--;
@@ -44,11 +46,8 @@ int Gui(int argc, char **argv) {
     }
 
     BeginDrawing();
-      ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
-
-      GuiButton((Rectangle){20, 70, 100, 50}, "test");
 		  DrawText(TextFormat("styles/%s.rgs", styles[styleIdx].c_str()),
-			  20, 140, 20, GRAY);
+			  0, 0, 20, GRAY);
     EndDrawing();
   }
 
@@ -59,7 +58,7 @@ int Gui(int argc, char **argv) {
 
 int main(int argc, char **argv)
 {
-  const std::string usage = "Usage: xdb [-v]\n"
+  const std::string usage = "Usage: xdb [-vg]\n"
     "\txdb [--help]\n";
   const std::string help = "Usage: xdb [OPTION...] [FILE...]\n"
     "The best FOSS viewer\n\n"
