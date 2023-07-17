@@ -36,14 +36,18 @@ void ArgParser::Parse()
   
   // currently debugging dont judge
 
+  bool *f;
+
   for(int i = 1; i < argc; i++) {
     if(argv[i][0] == '-' && argv[i][1] == '-') // long boi
     {
       for(int j = 0; j < opts.size(); j++)
       {
-        if(std::string(argv[i] + 2) == opts[j].get().longName)
-          // opts[j].get().flag = (bool*)&one; // why did i do it this way
+        if(std::string(argv[i] + 2) == opts[j].get().longName) {
           std::cout << "yessir " << opts[j].get().longName << '\n';
+          f = opts[j].get().flag;
+          *f = true;
+        }
         else std::cout << "unrecognized --" << std::string(argv[i] + 2) << '\n';
       }
     }
@@ -54,6 +58,8 @@ void ArgParser::Parse()
         for(int k = 0; k < opts.size(); k++) {
           if(argv[i][j] == opts[k].get().shortName) {
             std::cout << "shorty " << opts[k].get().shortName << '\n';
+            f = opts[k].get().flag;
+            *f = true;
           } else {
             std::cout << "unrecognized -" << argv[i][j] << '\n';
           }
