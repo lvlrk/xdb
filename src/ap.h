@@ -9,8 +9,14 @@ public:
   class Option
   {
   public:
-    Option(const std::string& longName, char shortName, bool *flag, int argType);
-  private:
+    enum ArgType {
+      ARG_NONE = 0,
+      ARG_ANY = -1
+    };
+
+    Option(const std::string& longName, char shortName, bool *flag, int argType, std::vector<void*> args);
+    bool IsArgTypeSpecial();
+
     std::string longName;
     char shortName;
     bool *flag;

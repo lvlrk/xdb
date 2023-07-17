@@ -1,5 +1,10 @@
-#define RELEASE // define or undefine to toggle
-#ifdef RELEASE
+#define P_RELEASE 0
+#define P_DEBUG 1
+#define P_APTEST 2
+
+#define PROG P_APTEST
+
+#if PROG == P_RELEASE
 #define VERSION_MAX 0
 #define VERSION_MIN 3
 
@@ -54,9 +59,7 @@ int main(int argc, char **argv)
 
   return 0;
 }
-#endif
-
-#ifndef RELEASE
+#elif PROG == P_DEBUG
 #include "xdb.h"
 
 int main(int argc, char **argv)
@@ -67,6 +70,27 @@ int main(int argc, char **argv)
   // x.PushBackFilename("xdb");
 
   x.WriteToFile("debug.xdb");
+
+  return 0;
+}
+#elif PROG == P_APTEST
+#include <iostream>
+#include "ap.h"
+
+int main(int argc, char **argv) {
+  ArgParser parser(argc, argv);
+
+  bool test_flag = false;
+
+  ArgParser::Option testOpt("test", 't', &test_flag, ArgParser::Option::ARG_NONE, std::vector<void*>());
+
+  parser.AddOpt(testOpt);
+
+  parser.Parse();
+
+  if(test_flag) {
+    std::cout << "yo test flag passed\n";
+  }
 
   return 0;
 }

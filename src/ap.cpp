@@ -1,11 +1,21 @@
+#include <iostream>
 #include "ap.h"
 
-ArgParser::Option::Option(const std::string& longName, char shortName, bool *flag, int argType)
+bool ArgParser::Option::IsArgTypeSpecial() {
+  return (argType == ARG_NONE || argType == ARG_ANY);
+}
+
+ArgParser::Option::Option(const std::string& longName, char shortName, bool *flag, int argType, std::vector<void*> args)
 {
   this->longName = longName;
   this->shortName = shortName;
   this->flag = flag;
   this->argType = argType;
+  this->args = args;
+
+  if(IsArgTypeSpecial()) {
+
+  } else args.resize(argType);
 }
 
 ArgParser::ArgParser(int argc, char **argv)
@@ -21,7 +31,39 @@ void ArgParser::AddOpt(Option& opt)
 
 void ArgParser::Parse()
 {
-  for(int i = 1; i < argc; i++) {
+  // int zero = 0,
+  // one = 1;
+  
+  // currently debugging dont judge
 
+  for(int i = 1; i < argc; i++) {
+    if(argv[i][0] == '-' && argv[i][1] == '-') // long boi
+    {
+      for(int j = 0; j < opts.size(); j++)
+      {
+        if(std::string(argv[i] + 2) == opts[j].get().longName)
+          // opts[j].get().flag = (bool*)&one; // why did i do it this way
+          std::cout << "yessir " << opts[j].get().longName << '\n';
+        else std::cout << "unrecognized --" << std::string(argv[i] + 2) << '\n';
+      }
+    }
+    else if(argv[i][0] == '-' && argv[i][1] != '-') // shorty
+    {
+      for(int j = 1; j < std::string(argv[i]).size(); j++)
+      {
+        for(int k = 0; k < opts.size(); k++) {
+          if(argv[i][j] == opts[k].get().shortName) {
+            std::cout << "shorty " << opts[k].get().shortName << '\n';
+          } else {
+            std::cout << "unrecognized -" << argv[i][j] << '\n';
+          }
+        }
+        // std::cout << argv[j] << '\n';
+      }
+    }
+    else // arg
+    {
+
+    }
   }
 }
