@@ -45,9 +45,11 @@ int main(int argc, char **argv)
 
   ArgParser::Option helpOpt("help", 0, ArgParser::Option::ARG_NONE);
   ArgParser::Option versionOpt("version", 'v', ArgParser::Option::ARG_NONE);
+  ArgParser::Option testOpt("test", 't', ArgParser::Option::ARG_NONE);
 
   parser.AddOpt(helpOpt);
   parser.AddOpt(versionOpt);
+  parser.AddOpt(testOpt);
 
   parser.Parse();
 
