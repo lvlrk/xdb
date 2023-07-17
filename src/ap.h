@@ -23,10 +23,18 @@ public:
     int argType = ARG_NONE;
     std::vector<void*> args;
   };
+
+  enum OptionType {
+    OPT_SHORT,
+    OPT_LONG,
+    OPT_NO
+  };
+
   ArgParser(int argc, char **argv);
 
   void AddOpt(Option& opt);
   void Parse();
+  int OptionType(const std::string& arg);
 private:
   int argc;
   char **argv;

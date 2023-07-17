@@ -3,6 +3,18 @@
 #include "ap.h"
 #include "util.h"
 
+int ArgParser::OptionType(const std::string& arg) {
+  int ret = OPT_NO;
+
+  if(arg[0] == '-' && arg[1] != '-') {
+    ret = OPT_SHORT;
+  } else if(arg[0] == '-' && arg[1] == '-') {
+    ret = OPT_LONG;
+  }
+
+  return ret;
+}
+
 bool ArgParser::Option::IsArgTypeSpecial() {
   return (argType == ARG_NONE || argType == ARG_ANY);
 }
@@ -35,8 +47,10 @@ void ArgParser::AddOpt(Option& opt)
 void ArgParser::Parse()
 {
   char *carg;
+  char copt; // used for short options
   bool unrecognized = false;
   int tmp;
+  int optType;
 
   for(int i = 1; i < argc; i++) {
     // resetting the 'temporary' variables
@@ -44,8 +58,10 @@ void ArgParser::Parse()
     carg = argv[0];
     tmp = 0;
 
-    if(argv[i][0] == '-' && argv[i][1] == '-') // long boi
+    optType = OptionType(argv[i]);
+    switch(optType)
     {
+    case OPT_LONG:
       carg = argv[i] + 2; // remove '--' from argv[i]
 
       for(int j = 0; j < opts.size(); j++)
@@ -53,6 +69,10 @@ void ArgParser::Parse()
         if(std::string(carg) == opts[j].get().longName) {
           opts[j].get().flag = true;
           unrecognized = false;
+
+          if(opts[j].get().argType != Option::ARG_NONE) {
+            
+          }
         }
       }
 
@@ -60,15 +80,18 @@ void ArgParser::Parse()
         std::cerr << fmt::format("{}: unrecognized option --{}\n",
           program, carg);
       }
-    }
-    else if(argv[i][0] == '-' && argv[i][1] != '-') // shorty
-    {
+
+      break;
+    case OPT_SHORT:
       carg = argv[i] + 1; // remove '-' from argv[i]
+      copt = 0;
 
       for(int j = 0; j < std::string(carg).size(); j++)
       {
+        copt = carg[j];
+
         for(int k = 0; k < opts.size(); k++) {
-          if(carg[j] == opts[k].get().shortName) {
+          if(copt == opts[k].get().shortName) {
             opts[k].get().flag = true;
             unrecognized = false;
           } else {
@@ -81,10 +104,10 @@ void ArgParser::Parse()
         std::cerr << fmt::format("{}: unrecognized option -{}\n",
           program, carg[tmp]);
       }
-    }
-    else // arg
-    {
 
+      break;
+    default:
+      break;
     }
   }
 }
