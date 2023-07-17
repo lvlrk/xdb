@@ -1,7 +1,7 @@
 #include <raylib.h> // GetDirectoryPath
 #include <iostream>
 #include <fstream> // std::ifstream
-#include <cstring> // std::strlen (im sorry avecp)
+#include <fmt/core.h>
 #include "xdb.h"
 
 XdbStat Xdb::XdbStatFromFilename(const std::string& filename) {
@@ -12,7 +12,7 @@ XdbStat Xdb::XdbStatFromFilename(const std::string& filename) {
 
   if(st == nullptr) 
   {
-      std::cerr << "Failed to get Xdb stat from filename" << std::endl;
+      std::cerr << fmt::format("{}: Failed to get stat from file '{}'\n", __func__, filename);
   }
 
   xdbStat.mode = st->st_mode;
@@ -35,7 +35,7 @@ XdbEntry Xdb::EntryFromFilename(const std::string& filename) {
   std::ifstream inf(filename, std::ios::binary | std::ios::ate);
   if(!inf.is_open())
   {
-      std::cerr << "Could not open file " << filename;
+      std::cerr << fmt::format("{}: Could not open file '{}'\n", __func__, filename);
   }
 
   entry.bufferSize = inf.tellg();
@@ -85,22 +85,18 @@ int Xdb::WriteToFile(const std::string& filename) {
 
   for(int i = 0; i < entries.size(); i++) {
     // stat
-    tmp = entries[i].stat.mode;
-    outf.write(reinterpret_cast<char*>(&tmp), 4);
-    tmp = entries[i].stat.atime;
-    outf.write(reinterpret_cast<char*>(&tmp), 4);
-    tmp = entries[i].stat.mtime;
-    outf.write(reinterpret_cast<char*>(&tmp), 4);
-    tmp = entries[i].stat.ctime;
-    outf.write(reinterpret_cast<char*>(&tmp), 4);
+
+    outf.write(reinterpret_cast<char*>(&entries[i].stat.mode), 4);
+    outf.write(reinterpret_cast<char*>(&entries[i].stat.atime), 4);
+    outf.write(reinterpret_cast<char*>(&entries[i].stat.mtime), 4);
+    outf.write(reinterpret_cast<char*>(&entries[i].stat.ctime), 4);
 
     // strings
     outf.write(entries[i].filename.c_str(), entries[i].filename.size() + 1);
     outf.write(entries[i].name.c_str(), entries[i].name.size() + 1);
-    tmp = entries[i].bufferSize;
 
     // buffer
-    outf.write(reinterpret_cast<char*>(&tmp), 4);
+    outf.write(reinterpret_cast<char*>(&entries[i].bufferSize), 4);
     outf.write(entries[i].buffer, entries[i].bufferSize);
   }
 
