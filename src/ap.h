@@ -9,7 +9,7 @@ public:
   class Option
   {
   public:
-    Option(const std::string& longName, char shortName, bool *flag, int argType, ...);
+    Option(const std::string& longName, char shortName, bool *flag, int argType);
   private:
     std::string longName;
     char shortName;
@@ -19,10 +19,10 @@ public:
   };
   ArgParser(int argc, char **argv);
 
-  void AddOpt(Option opt);
+  void AddOpt(Option& opt);
   void Parse();
 private:
   int argc;
   char **argv;
-  std::vector<Option&*> opts;
+  std::vector<std::reference_wrapper<Option>> opts;
 };
