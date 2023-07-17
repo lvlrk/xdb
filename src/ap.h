@@ -14,13 +14,13 @@ public:
       ARG_ANY = -1
     };
 
-    Option(const std::string& longName, char shortName, bool *flag, int argType, std::vector<void*> args);
+    Option(const std::string& longName, char shortName, int argType, std::vector<void*> args);
     bool IsArgTypeSpecial();
 
-    std::string longName;
-    char shortName;
-    bool *flag;
-    int argType;
+    std::string longName = "";
+    char shortName = 0;
+    bool flag = false;
+    int argType = ARG_NONE;
     std::vector<void*> args;
   };
   ArgParser(int argc, char **argv);

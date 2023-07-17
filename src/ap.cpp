@@ -5,11 +5,10 @@ bool ArgParser::Option::IsArgTypeSpecial() {
   return (argType == ARG_NONE || argType == ARG_ANY);
 }
 
-ArgParser::Option::Option(const std::string& longName, char shortName, bool *flag, int argType, std::vector<void*> args)
+ArgParser::Option::Option(const std::string& longName, char shortName, int argType, std::vector<void*> args)
 {
   this->longName = longName;
   this->shortName = shortName;
-  this->flag = flag;
   this->argType = argType;
   this->args = args;
 
@@ -45,8 +44,7 @@ void ArgParser::Parse()
       {
         if(std::string(argv[i] + 2) == opts[j].get().longName) {
           std::cout << "yessir " << opts[j].get().longName << '\n';
-          f = opts[j].get().flag;
-          *f = true;
+          opts[j].get().flag = true;
         }
         else std::cout << "unrecognized --" << std::string(argv[i] + 2) << '\n';
       }
@@ -58,8 +56,7 @@ void ArgParser::Parse()
         for(int k = 0; k < opts.size(); k++) {
           if(argv[i][j] == opts[k].get().shortName) {
             std::cout << "shorty " << opts[k].get().shortName << '\n';
-            f = opts[k].get().flag;
-            *f = true;
+            opts[k].get().flag = true;
           } else {
             std::cout << "unrecognized -" << argv[i][j] << '\n';
           }

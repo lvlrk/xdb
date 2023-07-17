@@ -80,15 +80,13 @@ int main(int argc, char **argv)
 int main(int argc, char **argv) {
   ArgParser parser(argc, argv);
 
-  bool test_flag = false;
-
-  ArgParser::Option testOpt("test", 't', &test_flag, ArgParser::Option::ARG_NONE, std::vector<void*>());
+  ArgParser::Option testOpt("test", 't', ArgParser::Option::ARG_NONE, std::vector<void*>());
 
   parser.AddOpt(testOpt);
 
   parser.Parse();
 
-  if(test_flag) {
+  if(testOpt.flag) {
     std::cout << "yo test flag passed\n";
   }
 
