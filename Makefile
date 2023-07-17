@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -O2 -c
+CXXFLAGS = -O2 -c -Wno-narrowing -Wno-enum-compare
 LDFLAGS = -lraylib -lfmt
 TARGET = xdb
 
