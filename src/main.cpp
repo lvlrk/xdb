@@ -8,6 +8,15 @@
 #include <fmt/core.h>
 #include <vector>
 
+// arg parser idea
+// {
+//  ArgParser parser(argc, argv);
+//
+//  parser.AddOpt("help", 0, &help_flag, ARGS_NONE);
+//  parser.AddOpt("version", 'v', &version_flag, ARGS_NONE);
+//  parser.AddOpt("file", 'f', &file_flag, 1, &file_name);
+// }
+
 int main(int argc, char **argv)
 {
   const std::string usage = "Usage: xdb [-vg]\n"

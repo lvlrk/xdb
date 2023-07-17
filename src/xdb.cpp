@@ -4,10 +4,10 @@
 #include <cstring> // std::strlen (im sorry avecp)
 #include "xdb.h"
 
-XdbStat_t *Xdb::XdbStatFromFilename(const std::string& filename) {
+struct XdbStat *Xdb::XdbStatFromFilename(const std::string& filename) {
   if(filename == "") return nullptr;
 
-  XdbStat_t *xdbStat = new XdbStat_t;
+  struct XdbStat *xdbStat = new struct XdbStat;
 
   struct stat *st = new struct stat;
   stat(filename.c_str(), st);
@@ -21,10 +21,10 @@ XdbStat_t *Xdb::XdbStatFromFilename(const std::string& filename) {
   return xdbStat;
 }
 
-XdbEntry_t *Xdb::EntryFromFilename(const std::string& filename) {
+struct XdbEntry *Xdb::EntryFromFilename(const std::string& filename) {
   if(filename == "") return nullptr;
 
-  XdbEntry_t *entry = new XdbEntry_t;
+  struct XdbEntry *entry = new struct XdbEntry;
 
   entry->stat = *XdbStatFromFilename(filename);
   entry->filename = filename;
