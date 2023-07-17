@@ -40,7 +40,7 @@ void ArgParser::Parse()
   int tmp;
 
   for(int i = 1; i < argc; i++) {
-    unrecognized = false;
+    unrecognized = true;
     carg = argv[0];
     tmp = 0;
 
@@ -73,7 +73,6 @@ void ArgParser::Parse()
             opts[k].get().flag = true;
             unrecognized = false;
         } else {
-            unrecognized = true;
             tmp = j;
           }
         }
