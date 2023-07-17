@@ -14,9 +14,8 @@ ArgParser::Option::Option(const std::string& longName, char shortName, int argTy
   this->argType = argType;
   this->args = args;
 
-  if(IsArgTypeSpecial()) {
-
-  } else args.resize(argType);
+  if(!IsArgTypeSpecial())
+    this->args.resize(argType);
 }
 
 ArgParser::ArgParser(int argc, char **argv)
@@ -24,7 +23,7 @@ ArgParser::ArgParser(int argc, char **argv)
   this->argc = argc;
   this->argv = argv;
 
-  if(argv[0][0] == '.' && argv[0][1] == *DIRSEP) program = argv[0] + 2;
+  if(argv[0][0] == '.' && argv[0][1] == *DIRSEP) program = argv[0] + 2; // remove './' from argv[0]
   else program = argv[0];
 }
 
@@ -36,25 +35,25 @@ void ArgParser::AddOpt(Option& opt)
 void ArgParser::Parse()
 {
   char *carg;
-  bool unrecognized;
+  bool unrecognized = false;
   int tmp;
 
   for(int i = 1; i < argc; i++) {
+    // resetting the 'temporary' variables
     unrecognized = true;
     carg = argv[0];
     tmp = 0;
 
     if(argv[i][0] == '-' && argv[i][1] == '-') // long boi
     {
-      carg = argv[i] + 2;
+      carg = argv[i] + 2; // remove '--' from argv[i]
 
       for(int j = 0; j < opts.size(); j++)
       {
         if(std::string(carg) == opts[j].get().longName) {
           opts[j].get().flag = true;
           unrecognized = false;
-        } else
-          unrecognized = true;
+        }
       }
 
       if(unrecognized) {
@@ -64,7 +63,7 @@ void ArgParser::Parse()
     }
     else if(argv[i][0] == '-' && argv[i][1] != '-') // shorty
     {
-      carg = argv[i] + 1;
+      carg = argv[i] + 1; // remove '-' from argv[i]
 
       for(int j = 0; j < std::string(carg).size(); j++)
       {
@@ -72,7 +71,7 @@ void ArgParser::Parse()
           if(carg[j] == opts[k].get().shortName) {
             opts[k].get().flag = true;
             unrecognized = false;
-        } else {
+          } else {
             tmp = j;
           }
         }
