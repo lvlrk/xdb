@@ -13,7 +13,7 @@ int XdbStat::FromFilename(const std::string& filename) {
 
     struct stat st;
 
-    if(stat(filename.c_str(), &st)) {
+    if(stat(filename.c_str(), &st) == -1) {
         std::cout << fmt::format("{}() error: Could not stat file '{}'\n", __func__, filename);
 
         DEBUG(strerror(errno));
@@ -106,6 +106,8 @@ int Xdb::ReadFromFile(const std::string& filename) {
 
         std::cout << tmpTag << '\n';
     }
+
+    std::cout << inf.tellg() << '\n';
 
     inf.close();
 
