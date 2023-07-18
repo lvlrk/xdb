@@ -10,7 +10,7 @@ Version: 0.4 [debug build]
 This idea was created by me and my boi avecp
 Currently not finished
 
-[lvlrk note] i took ten years to update this readme sorry. avecp (haedq) thinks im a good programmer (big W)
+[lvlrk note] i took ten years to update this readme sorry. avecp (haedqu) thinks im a good programmer (big W)
 
 # Build (linux-only)
 Run `$ make`
