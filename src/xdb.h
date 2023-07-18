@@ -24,8 +24,13 @@ public:
     time_t ctime = 0;
 };
 
-struct XdbEntry { // note: all char* are cstrings;
+class XdbEntry { // note: all char* are cstrings;
     // will read from binary until 0
+public:
+    XdbEntry();
+    XdbEntry(const XdbEntry& argument);
+
+public:
     struct XdbStat stat; // custom stat metadata
     std::string filename;
     std::string name; // generated 'cleaner' filename
@@ -49,7 +54,7 @@ public:
     std::string GenerateName(const std::string& filename);
 
     // returns entry created from filename; returns nullptr on error
-    XdbEntry EntryFromFilename(const std::string& filename);
+    void EntryFromFilename(const std::string& filename, XdbEntry& entry);
 private:
     std::vector<std::string> tags;
     std::vector<struct XdbEntry> entries;

@@ -27,8 +27,19 @@ int XdbStat::FromFilename(const std::string& filename) {
     return 0;
 }
 
-XdbEntry Xdb::EntryFromFilename(const std::string& filename) {
-    XdbEntry entry;
+XdbEntry::XdbEntry() {
+    
+}
+
+XdbEntry::XdbEntry(const XdbEntry& argument) {
+    stat = argument.stat;
+    filename = argument.filename;
+    name = argument.name;
+    bufferSize = argument.bufferSize;
+    buffer = std::make_unique<char>(*argument.buffer);
+}
+
+void Xdb::EntryFromFilename(const std::string& filename, XdbEntry& entry) {
     XdbStat xdbStat;
 
     xdbStat.FromFilename(filename);
@@ -41,8 +52,6 @@ XdbEntry Xdb::EntryFromFilename(const std::string& filename) {
     std::ifstream inf(filename, std::ios::binary | std::ios::ate);
     if(!inf.is_open()) {
         std::cout << fmt::format("{}() error: Could not open file '{}'\n", __func__, filename);
-
-        return entry;
     }
 
     entry.bufferSize = inf.tellg();
@@ -54,14 +63,13 @@ XdbEntry Xdb::EntryFromFilename(const std::string& filename) {
     inf.read(entry.buffer.get(), entry.bufferSize);
 
     inf.close();
-
-    return entry;
 }
 
 int Xdb::PushBackFilename(const std::string& filename) {
     if(filename == "") return 1;
 
-    struct XdbEntry entry = EntryFromFilename(filename);
+    XdbEntry entry;
+    EntryFromFilename(filename, entry);
 
     if(entry.buffer != nullptr) entries.push_back(entry);
     else return 1;
