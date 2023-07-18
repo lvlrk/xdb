@@ -191,11 +191,11 @@ GuiWindowFileDialogState InitGuiWindowFileDialog(const char *initPath)
 
     // Custom variables initialization
     if (initPath && DirectoryExists(initPath))
-    {
-        strcpy(state.dirPathText, initPath);
-    }
+        {
+            strcpy(state.dirPathText, initPath);
+        }
     else if (initPath && FileExists(initPath))
-    {
+        {
         strcpy(state.dirPathText, GetDirectoryPath(initPath));
         strcpy(state.fileNameText, GetFileName(initPath));
     }
@@ -290,12 +290,12 @@ void GuiWindowFileDialog(GuiWindowFileDialogState *state)
             {
                 // Verify if a valid path has been introduced
                 if (DirectoryExists(state->dirPathText))
-                {
-                    // Reload directory files (frees previous list)
-                    ReloadDirectoryFiles(state);
+                    {
+                        // Reload directory files (frees previous list)
+                        ReloadDirectoryFiles(state);
 
-                    strcpy(state->dirPathTextCopy, state->dirPathText);
-                }
+                        strcpy(state->dirPathTextCopy, state->dirPathText);
+                    }
                 else strcpy(state->dirPathText, state->dirPathTextCopy);
             }
 
@@ -318,7 +318,7 @@ void GuiWindowFileDialog(GuiWindowFileDialogState *state)
 
         // Check if a path has been selected, if it is a directory, move to that directory (and reload paths)
         if ((state->filesListActive >= 0) && (state->filesListActive != state->prevFilesListActive))
-            //&& (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_DPAD_A)))
+        //&& (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_DPAD_A)))
         {
             strcpy(state->fileNameText, GetFileName(state->dirFiles.paths[state->filesListActive]));
 
@@ -351,22 +351,22 @@ void GuiWindowFileDialog(GuiWindowFileDialogState *state)
             {
                 // Verify if a valid filename has been introduced
                 if (FileExists(TextFormat("%s/%s", state->dirPathText, state->fileNameText)))
-                {
-                    // Select filename from list view
-                    for (int i = 0; i < state->dirFiles.count; i++)
                     {
-                        if (TextIsEqual(state->fileNameText, state->dirFiles.paths[i]))
+                        // Select filename from list view
+                        for (int i = 0; i < state->dirFiles.count; i++)
                         {
-                            state->filesListActive = i;
-                            strcpy(state->fileNameTextCopy, state->fileNameText);
-                            break;
+                            if (TextIsEqual(state->fileNameText, state->dirFiles.paths[i]))
+                            {
+                                state->filesListActive = i;
+                                strcpy(state->fileNameTextCopy, state->fileNameText);
+                                break;
+                            }
                         }
                     }
-                }
                 else if (!state->saveFileMode)
                 {
-                    strcpy(state->fileNameText, state->fileNameTextCopy);
-                }
+                strcpy(state->fileNameText, state->fileNameTextCopy);
+            }
             }
 
             state->fileNameEditMode = !state->fileNameEditMode;
@@ -433,26 +433,26 @@ static void ReloadDirectoryFiles(GuiWindowFileDialogState *state)
     for (int i = 0; i < state->dirFiles.count; i++)
     {
         if (IsPathFile(state->dirFiles.paths[i]))
-        {
-            // Path is a file, a file icon for convenience (for some recognized extensions)
-            if (IsFileExtension(state->dirFiles.paths[i], ".png;.bmp;.tga;.gif;.jpg;.jpeg;.psd;.hdr;.qoi;.dds;.pkm;.ktx;.pvr;.astc"))
             {
-                strcpy(dirFilesIcon[i], TextFormat("#12#%s", GetFileName(state->dirFiles.paths[i])));
+                // Path is a file, a file icon for convenience (for some recognized extensions)
+                if (IsFileExtension(state->dirFiles.paths[i], ".png;.bmp;.tga;.gif;.jpg;.jpeg;.psd;.hdr;.qoi;.dds;.pkm;.ktx;.pvr;.astc"))
+                    {
+                        strcpy(dirFilesIcon[i], TextFormat("#12#%s", GetFileName(state->dirFiles.paths[i])));
+                    }
+                else if (IsFileExtension(state->dirFiles.paths[i], ".wav;.mp3;.ogg;.flac;.xm;.mod;.it;.wma;.aiff"))
+                    {
+                    strcpy(dirFilesIcon[i], TextFormat("#11#%s", GetFileName(state->dirFiles.paths[i])));
+                }
+                else if (IsFileExtension(state->dirFiles.paths[i], ".txt;.info;.md;.nfo;.xml;.json;.c;.cpp;.cs;.lua;.py;.glsl;.vs;.fs"))
+                    {
+                    strcpy(dirFilesIcon[i], TextFormat("#10#%s", GetFileName(state->dirFiles.paths[i])));
+                }
+                else if (IsFileExtension(state->dirFiles.paths[i], ".exe;.bin;.raw;.msi"))
+                    {
+                    strcpy(dirFilesIcon[i], TextFormat("#200#%s", GetFileName(state->dirFiles.paths[i])));
+                }
+                else strcpy(dirFilesIcon[i], TextFormat("#218#%s", GetFileName(state->dirFiles.paths[i])));
             }
-            else if (IsFileExtension(state->dirFiles.paths[i], ".wav;.mp3;.ogg;.flac;.xm;.mod;.it;.wma;.aiff"))
-            {
-                strcpy(dirFilesIcon[i], TextFormat("#11#%s", GetFileName(state->dirFiles.paths[i])));
-            }
-            else if (IsFileExtension(state->dirFiles.paths[i], ".txt;.info;.md;.nfo;.xml;.json;.c;.cpp;.cs;.lua;.py;.glsl;.vs;.fs"))
-            {
-                strcpy(dirFilesIcon[i], TextFormat("#10#%s", GetFileName(state->dirFiles.paths[i])));
-            }
-            else if (IsFileExtension(state->dirFiles.paths[i], ".exe;.bin;.raw;.msi"))
-            {
-                strcpy(dirFilesIcon[i], TextFormat("#200#%s", GetFileName(state->dirFiles.paths[i])));
-            }
-            else strcpy(dirFilesIcon[i], TextFormat("#218#%s", GetFileName(state->dirFiles.paths[i])));
-        }
         else
         {
             // Path is a directory, add a directory icon
@@ -498,35 +498,35 @@ static int GuiListViewFiles(Rectangle bounds, FileInfo *files, int count, int *f
 
         // Check mouse inside list view
         if (CheckCollisionPointRec(mousePoint, bounds))
-        {
-            state = GUI_STATE_FOCUSED;
-
-            // Check focused and selected item
-            for (int i = 0; i < visibleItems; i++)
             {
-                if (CheckCollisionPointRec(mousePoint, itemBounds))
+                state = GUI_STATE_FOCUSED;
+
+                // Check focused and selected item
+                for (int i = 0; i < visibleItems; i++)
                 {
-                    itemFocused = startIndex + i;
-                    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) itemSelected = startIndex + i;
-                    break;
+                    if (CheckCollisionPointRec(mousePoint, itemBounds))
+                    {
+                        itemFocused = startIndex + i;
+                        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) itemSelected = startIndex + i;
+                        break;
+                    }
+
+                    // Update item rectangle y position for next item
+                    itemBounds.y += (GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) + GuiGetStyle(LISTVIEW, LIST_ITEMS_PADDING));
                 }
 
-                // Update item rectangle y position for next item
-                itemBounds.y += (GuiGetStyle(LISTVIEW, LIST_ITEMS_HEIGHT) + GuiGetStyle(LISTVIEW, LIST_ITEMS_PADDING));
+                if (useScrollBar)
+                {
+                    int wheelMove = GetMouseWheelMove();
+                    startIndex -= wheelMove;
+
+                    if (startIndex < 0) startIndex = 0;
+                    else if (startIndex > (count - visibleItems)) startIndex = count - visibleItems;
+
+                    endIndex = startIndex + visibleItems;
+                    if (endIndex > count) endIndex = count;
+                }
             }
-
-            if (useScrollBar)
-            {
-                int wheelMove = GetMouseWheelMove();
-                startIndex -= wheelMove;
-
-                if (startIndex < 0) startIndex = 0;
-                else if (startIndex > (count - visibleItems)) startIndex = count - visibleItems;
-
-                endIndex = startIndex + visibleItems;
-                if (endIndex > count) endIndex = count;
-            }
-        }
         else itemFocused = -1;
 
         // Reset item rectangle y to [0]
@@ -545,29 +545,29 @@ static int GuiListViewFiles(Rectangle bounds, FileInfo *files, int count, int *f
     for (int i = 0; i < visibleItems; i++)
     {
         if (state == GUI_STATE_DISABLED)
-        {
-            if ((startIndex + i) == itemSelected)
             {
-                DrawRectangleRec(itemBounds, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_DISABLED)), guiAlpha));
-                DrawRectangleLinesEx(itemBounds, GuiGetStyle(LISTVIEW, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_DISABLED)), guiAlpha));
+                if ((startIndex + i) == itemSelected)
+                {
+                    DrawRectangleRec(itemBounds, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_DISABLED)), guiAlpha));
+                    DrawRectangleLinesEx(itemBounds, GuiGetStyle(LISTVIEW, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_DISABLED)), guiAlpha));
+                }
+
+                // TODO: Draw full file info line: icon+name | size | type | modTime
+
+                GuiDrawText(files[startIndex + i].name, GetTextBounds(DEFAULT, itemBounds), GuiGetStyle(LISTVIEW, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(LISTVIEW, TEXT_COLOR_DISABLED)), guiAlpha));
             }
-
-            // TODO: Draw full file info line: icon+name | size | type | modTime
-
-            GuiDrawText(files[startIndex + i].name, GetTextBounds(DEFAULT, itemBounds), GuiGetStyle(LISTVIEW, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(LISTVIEW, TEXT_COLOR_DISABLED)), guiAlpha));
-        }
         else
         {
             if ((startIndex + i) == itemSelected)
-            {
-                // Draw item selected
-                DrawRectangleRec(itemBounds, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_PRESSED)), guiAlpha));
-                DrawRectangleLinesEx(itemBounds, GuiGetStyle(LISTVIEW, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_PRESSED)), guiAlpha));
+                {
+                    // Draw item selected
+                    DrawRectangleRec(itemBounds, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_PRESSED)), guiAlpha));
+                    DrawRectangleLinesEx(itemBounds, GuiGetStyle(LISTVIEW, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_PRESSED)), guiAlpha));
 
-                GuiDrawText(files[startIndex + i].name, GetTextBounds(DEFAULT, itemBounds), GuiGetStyle(LISTVIEW, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(LISTVIEW, TEXT_COLOR_PRESSED)), guiAlpha));
-            }
+                    GuiDrawText(files[startIndex + i].name, GetTextBounds(DEFAULT, itemBounds), GuiGetStyle(LISTVIEW, TEXT_ALIGNMENT), Fade(GetColor(GuiGetStyle(LISTVIEW, TEXT_COLOR_PRESSED)), guiAlpha));
+                }
             else if ((startIndex + i) == itemFocused)
-            {
+                {
                 // Draw item focused
                 DrawRectangleRec(itemBounds, Fade(GetColor(GuiGetStyle(LISTVIEW, BASE_COLOR_FOCUSED)), guiAlpha));
                 DrawRectangleLinesEx(itemBounds, GuiGetStyle(LISTVIEW, BORDER_WIDTH), Fade(GetColor(GuiGetStyle(LISTVIEW, BORDER_COLOR_FOCUSED)), guiAlpha));

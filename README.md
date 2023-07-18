@@ -16,4 +16,4 @@ Currently not finished
 Run `$ make`
 bam it's done
 
-### Monday 7/17/23 lvlrk
+### Tuesday 7/18/23 lvlrk

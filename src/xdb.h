@@ -1,5 +1,7 @@
 #pragma once
 
+// #define XDB_USE_64
+
 #ifndef _WIN32 // check for penguin os, as it should be
 #include <sys/stat.h> // mode_t, time_t
 
@@ -13,6 +15,18 @@ typedef mode_t int;
 #include <string> // std::string
 #include <vector> // std::vector
 #include <memory> // std::unique_ptr
+
+struct MemDesc { // offset,size pair struct for describing memory
+    int off;
+    int size;
+};
+
+#ifdef XDB_USE_64
+struct MemDesc64 {
+    long long off;
+    long long size;
+};
+#endif
 
 class XdbStat { // contains 'portable' stat info
 public:
