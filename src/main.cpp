@@ -1,6 +1,7 @@
 #define P_XDB 0
+#define P_READTEST 1
 
-#define PROG P_XDB
+#define PROG P_READTEST
 
 #if PROG == P_XDB
 #define VERSION_MAX 0
@@ -88,6 +89,16 @@ int main(int argc, char **argv)
             return 1;
         }
     }
+
+    return 0;
+}
+#elif PROG == P_READTEST
+#include "xdb.h"
+
+int main() {
+    Xdb x;
+
+    x.ReadFromFile("test.xdb");
 
     return 0;
 }

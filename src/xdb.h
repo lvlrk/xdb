@@ -58,7 +58,10 @@ public:
     int PushBackFilename(const std::string& filename);
 
     // writes file buffer data to a xdb database; returns non-zero on error
-    int WriteToFile(const std::string& dbname);
+    int WriteToFile(const std::string& filename);
+
+    // reads from file; returns non-zero on error
+    int ReadFromFile(const std::string& filename);
 
     /*** Utility functions ***/
     // returns xdbstat created from filename; returns nullptr on error
@@ -70,5 +73,5 @@ public:
     void EntryFromFilename(const std::string& filename, XdbEntry& entry);
 private:
     std::vector<std::string> tags;
-    std::vector<struct XdbEntry> entries;
+    std::vector<XdbEntry> entries;
 };

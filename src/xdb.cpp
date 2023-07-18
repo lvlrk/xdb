@@ -1,12 +1,12 @@
-#include <raylib.h> // GetDirectoryPath
-#include <iostream>
+#include <raylib.h>
+#include <iostream> // std::cout
 #include <fstream> // std::ifstream
-#include <fmt/core.h>
-#include <sys/stat.h>
+#include <fmt/core.h> // fmt::format, fmt::print
+#include <sys/stat.h> // stat
 #include <cstring> // std::strerror
-#include <errno.h>
+#include <errno.h> // errno
 #include "xdb.h"
-#include "util.h"
+#include "util.h" // DEBUG
 
 int XdbStat::FromFilename(const std::string& filename) {
     XdbStat xdbStat;
@@ -73,6 +73,47 @@ int Xdb::PushBackFilename(const std::string& filename) {
     else return 1;
 
     return 0;
+}
+
+int Xdb::ReadFromFile(const std::string& filename) {
+    if(filename == "") return 1;
+
+    std::ifstream inf(filename, std::ios::binary);
+    if(!inf.is_open()) return 1;
+
+    char magic[4];
+    std::string tmpTag;
+    char c;
+
+    inf.read(magic, 4);
+
+    if(std::string(magic) != "xdba") goto error;
+
+    int tmp;
+
+    inf.read(reinterpret_cast<char*>(&tmp), 4);
+    tags.resize(tmp);
+    
+    inf.read(reinterpret_cast<char*>(&tmp), 4);
+    entries.resize(tmp);
+
+    for(int i = 0; i < tags.size(); i++) {
+        tmpTag = "";
+
+        while(inf.read(&c, 1) && c != 0) {
+            tmpTag += c;
+        }
+
+        std::cout << tmpTag << '\n';
+    }
+
+    inf.close();
+
+    return 0;
+error:
+    if(inf.is_open()) inf.close();
+
+    return 1;
 }
 
 int Xdb::WriteToFile(const std::string& filename) {
