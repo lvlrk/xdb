@@ -5,7 +5,8 @@
 
 #if PROG == P_XDB
 #define VERSION_MAX 0
-#define VERSION_MIN 4
+#define VERSION_MID 4
+#define VERSION_MIN 1
 
 #include <iostream>
 #include <string>
@@ -72,7 +73,7 @@ int main(int argc, char **argv)
         return 0;
     }
     if(versionOpt.flag) {
-        fmt::print("xdb-{}.{}\n", VERSION_MAX, VERSION_MIN);
+        fmt::print("xdb-{}.{}.{}\n", VERSION_MAX, VERSION_MID, VERSION_MIN);
 
         return 0;
     }
