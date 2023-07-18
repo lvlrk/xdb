@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream> // std::ifstream
 #include <fmt/core.h>
+#include <sys/stat.h>
 #include "xdb.h"
 
 XdbStat Xdb::XdbStatFromFilename(const std::string& filename) {
@@ -10,9 +11,10 @@ XdbStat Xdb::XdbStatFromFilename(const std::string& filename) {
   struct stat* st;
   stat(filename.c_str(), st);
 
-  if(st == nullptr) 
-  {
-      std::cerr << fmt::format("{}: Failed to get stat from file '{}'\n", __func__, filename);
+  if(st == nullptr)  {
+    std::cerr << fmt::format("{}(): Failed to get stat from file '{}'\n", __func__, filename);
+
+    return xdbStat;
   }
 
   xdbStat.mode = st->st_mode;
@@ -33,9 +35,10 @@ XdbEntry Xdb::EntryFromFilename(const std::string& filename) {
   entry.buffer = nullptr; // for now
   
   std::ifstream inf(filename, std::ios::binary | std::ios::ate);
-  if(!inf.is_open())
-  {
-      std::cerr << fmt::format("{}: Could not open file '{}'\n", __func__, filename);
+  if(!inf.is_open()) {
+    std::cerr << fmt::format("{}(): Could not open file '{}'\n", __func__, filename);
+
+    return entry;
   }
 
   entry.bufferSize = inf.tellg();

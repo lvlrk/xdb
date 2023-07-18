@@ -14,14 +14,14 @@ public:
       ARG_ANY = -1
     };
 
-    Option(const std::string& longName, char shortName, int argType, std::vector<std::string*> args = std::vector<std::string*>());
+    Option(const std::string& longName, char shortName, int argType);
     bool IsArgTypeSpecial();
 
     std::string longName = "";
     char shortName = 0;
     bool flag = false;
     int argType = ARG_NONE;
-    std::vector<std::string*> args;
+    std::vector<std::string> args;
   };
 
   enum OptionType {

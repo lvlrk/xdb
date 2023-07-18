@@ -5,11 +5,12 @@
 
 int ArgParser::OptionType(const std::string& arg) {
   int ret = OPT_NO;
-
-  if(arg[0] == '-' && arg[1] != '-') {
-    ret = OPT_SHORT;
-  } else if(arg[0] == '-' && arg[1] == '-') {
-    ret = OPT_LONG;
+  if(arg != "") {
+    if(arg[0] == '-' && arg[1] != '-') {
+      ret = OPT_SHORT;
+    } else if(arg[0] == '-' && arg[1] == '-') {
+      ret = OPT_LONG;
+    }
   }
 
   return ret;
@@ -19,15 +20,14 @@ bool ArgParser::Option::IsArgTypeSpecial() {
   return (argType == ARG_NONE || argType == ARG_ANY);
 }
 
-ArgParser::Option::Option(const std::string& longName, char shortName, int argType, std::vector<std::string*> args)
+ArgParser::Option::Option(const std::string& longName, char shortName, int argType)
 {
   this->longName = longName;
   this->shortName = shortName;
   this->argType = argType;
-  this->args = args;
 
   if(!IsArgTypeSpecial())
-    this->args.resize(argType);
+    args.resize(argType);
 }
 
 ArgParser::ArgParser(int argc, char **argv)
@@ -45,25 +45,22 @@ void ArgParser::AddOpt(Option& opt)
 }
 
 void ArgParser::ParseArgs(int i, int j) {
-  std::string tmpStr = "";
-  std::string *tmpStrP; // not actually pointing to tmpStr
-
   if(opts[j].get().argType != Option::ARG_ANY) {
+    int l = 0;
     for(int k = 0; k < opts[j].get().argType; k++) {
       if(argv[i + k + 1]) {
-        tmpStr = std::string(argv[i + k + 1]);
-        tmpStrP = opts[j].get().args[k];
-        *tmpStrP = tmpStr;
+        opts[j].get().args[l++] = std::string(argv[i + k + 1]);
       } else {
-        opts[j].get().args[k] = nullptr;
+        opts[j].get().args.push_back("");
       }
     }
   } else if(opts[j].get().argType == Option::ARG_ANY) {
-    int k = 0;
+    int k = 1;
 
-    while(OptionType(argv[i + k]) == OPT_NO) {
-      tmpStrP = opts[j].get().args[k];
-      *tmpStrP = argv[i + k + 1];
+    while(argv[i + k]) {
+      if(OptionType(argv[i + k]) == OPT_NO) {
+        opts[j].get().args.push_back(argv[i + k]);
+      }
 
       k++;
     }
@@ -135,8 +132,6 @@ void ArgParser::Parse()
           program, carg[tmp]);
       }
 
-      break;
-    default:
       break;
     }
   }
