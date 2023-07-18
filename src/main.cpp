@@ -12,7 +12,7 @@
 #include <vector>
 #include "ap.h"
 #include "xdb.h"
-#include "debug.h"
+#include "util.h"
 
 int main(int argc, char **argv)
 {

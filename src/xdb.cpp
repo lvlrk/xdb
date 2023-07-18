@@ -6,7 +6,7 @@
 #include <cstring> // std::strerror
 #include <errno.h>
 #include "xdb.h"
-#include "debug.h"
+#include "util.h"
 
 XdbStat EmptyXdbStat() {
   XdbStat xdbStat;
