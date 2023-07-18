@@ -49,9 +49,9 @@ XdbEntry Xdb::EntryFromFilename(const std::string& filename) {
 
     inf.seekg(0);
 
-    entry.buffer = new char[entry.bufferSize];
+    entry.buffer = std::make_unique<char>(entry.bufferSize);
 
-    inf.read(entry.buffer, entry.bufferSize);
+    inf.read(entry.buffer.get(), entry.bufferSize);
 
     inf.close();
 
@@ -107,7 +107,7 @@ int Xdb::WriteToFile(const std::string& filename) {
 
         // buffer
         outf.write(reinterpret_cast<char*>(&entries[i].bufferSize), 4);
-        outf.write(entries[i].buffer, entries[i].bufferSize);
+        outf.write(entries[i].buffer.get(), entries[i].bufferSize);
     }
 
     outf.close();
