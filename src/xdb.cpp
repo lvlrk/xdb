@@ -5,8 +5,19 @@
 #include <sys/stat.h>
 #include "xdb.h"
 
-XdbStat Xdb::XdbStatFromFilename(const std::string& filename) {
+XdbStat EmptyXdbStat() {
   XdbStat xdbStat;
+
+  xdbStat.mode = 0;
+  xdbStat.atime = 0;
+  xdbStat.mtime = 0;
+  xdbStat.ctime = 0;
+
+  return xdbStat;
+}
+
+XdbStat Xdb::XdbStatFromFilename(const std::string& filename) {
+  XdbStat xdbStat = EmptyXdbStat();
 
   struct stat* st;
   stat(filename.c_str(), st);
@@ -15,12 +26,12 @@ XdbStat Xdb::XdbStatFromFilename(const std::string& filename) {
     std::cerr << fmt::format("{}(): Failed to get stat from file '{}'\n", __func__, filename);
 
     return xdbStat;
+  } else {
+    xdbStat.mode = st->st_mode;
+    xdbStat.atime = st->st_atime;
+    xdbStat.mtime = st->st_mtime;
+    xdbStat.ctime = st->st_ctime;
   }
-
-  xdbStat.mode = st->st_mode;
-  xdbStat.atime = st->st_atime;
-  xdbStat.mtime = st->st_mtime;
-  xdbStat.ctime = st->st_ctime;
 
   return xdbStat;
 }

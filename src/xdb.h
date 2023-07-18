@@ -30,6 +30,8 @@ struct XdbEntry { // note: all char* are cstrings;
   char *buffer; // file data buffer
 };
 
+XdbStat EmptyXdbStat();
+
 class Xdb {
 public:
   /*** Userspace functions ***/
