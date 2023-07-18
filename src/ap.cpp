@@ -19,7 +19,7 @@ bool ArgParser::Option::IsArgTypeSpecial() {
   return (argType == ARG_NONE || argType == ARG_ANY);
 }
 
-ArgParser::Option::Option(const std::string& longName, char shortName, int argType, std::vector<void*> args)
+ArgParser::Option::Option(const std::string& longName, char shortName, int argType, std::vector<std::string*> args)
 {
   this->longName = longName;
   this->shortName = shortName;
@@ -42,6 +42,32 @@ ArgParser::ArgParser(int argc, char **argv)
 void ArgParser::AddOpt(Option& opt)
 {
   opts.push_back(opt);
+}
+
+void ArgParser::ParseArgs(int i, int j) {
+  std::string tmpStr = "";
+  std::string *tmpStrP; // not actually pointing to tmpStr
+
+  if(opts[j].get().argType != Option::ARG_ANY) {
+    for(int k = 0; k < opts[j].get().argType; k++) {
+      if(argv[i + k + 1]) {
+        tmpStr = std::string(argv[i + k + 1]);
+        tmpStrP = opts[j].get().args[k];
+        *tmpStrP = tmpStr;
+      } else {
+        opts[j].get().args[k] = nullptr;
+      }
+    }
+  } else if(opts[j].get().argType == Option::ARG_ANY) {
+    int k = 0;
+
+    while(OptionType(argv[i + k]) == OPT_NO) {
+      tmpStrP = opts[j].get().args[k];
+      *tmpStrP = argv[i + k + 1];
+
+      k++;
+    }
+  }
 }
 
 void ArgParser::Parse()
@@ -71,7 +97,7 @@ void ArgParser::Parse()
           unrecognized = false;
 
           if(opts[j].get().argType != Option::ARG_NONE) {
-            
+            ParseArgs(i, j);
           }
         }
       }
@@ -94,6 +120,10 @@ void ArgParser::Parse()
           if(copt == opts[k].get().shortName) {
             opts[k].get().flag = true;
             unrecognized = false;
+
+            if(opts[k].get().argType != Option::ARG_NONE) {
+              ParseArgs(i, k);
+            }
           } else {
             tmp = j;
           }

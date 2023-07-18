@@ -14,14 +14,14 @@ public:
       ARG_ANY = -1
     };
 
-    Option(const std::string& longName, char shortName, int argType, std::vector<void*> args = std::vector<void*>());
+    Option(const std::string& longName, char shortName, int argType, std::vector<std::string*> args = std::vector<std::string*>());
     bool IsArgTypeSpecial();
 
     std::string longName = "";
     char shortName = 0;
     bool flag = false;
     int argType = ARG_NONE;
-    std::vector<void*> args;
+    std::vector<std::string*> args;
   };
 
   enum OptionType {
@@ -34,8 +34,10 @@ public:
 
   void AddOpt(Option& opt);
   void Parse();
-  int OptionType(const std::string& arg);
 private:
+  int OptionType(const std::string& arg);
+  void ParseArgs(int i, int j);
+
   int argc;
   char **argv;
   std::vector<std::reference_wrapper<Option>> opts;
