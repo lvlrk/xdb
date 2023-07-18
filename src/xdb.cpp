@@ -68,7 +68,10 @@ XdbEntry Xdb::EntryFromFilename(const std::string& filename) {
 int Xdb::PushBackFilename(const std::string& filename) {
   if(filename == "") return 1;
 
-  entries.push_back(EntryFromFilename(filename));
+  struct XdbEntry entry = EntryFromFilename(filename);
+
+  if(entry.buffer != nullptr) entries.push_back(EntryFromFilename(filename));
+  else return 1;
 
   return 0;
 }
