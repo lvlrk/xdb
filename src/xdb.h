@@ -14,11 +14,14 @@ typedef mode_t int;
 #include <vector> // std::vector
 #include <memory> // std::unique_ptr
 
-struct XdbStat { // contains 'portable' stat info
-  mode_t mode; // will be 0 on NOT PENGUIN OS >:( L windows
-  time_t atime;
-  time_t mtime;
-  time_t ctime;
+class XdbStat { // contains 'portable' stat info
+public:
+    int FromFilename(const std::string& filename);
+
+  mode_t mode = 0; // will be 0 on NOT PENGUIN OS >:( L windows
+  time_t atime = 0;
+  time_t mtime = 0;
+  time_t ctime = 0;
 };
 
 struct XdbEntry { // note: all char* are cstrings;
@@ -29,8 +32,6 @@ struct XdbEntry { // note: all char* are cstrings;
   int bufferSize;
   char *buffer; // file data buffer
 };
-
-XdbStat EmptyXdbStat();
 
 class Xdb {
 public:
@@ -43,7 +44,6 @@ public:
 
   /*** Utility functions ***/
   // returns xdbstat created from filename; returns nullptr on error
-  XdbStat XdbStatFromFilename(const std::string& filename);
 
   // creates a 'clean' name from filename; returns "" on error
   std::string GenerateName(const std::string& filename);

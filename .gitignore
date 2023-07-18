@@ -6,3 +6,6 @@ old/test.xdb
 *.o
 xdb
 *.xdb
+
+# build script for lvlrk
+build
