@@ -27,16 +27,14 @@ int XdbStat::FromFilename(const std::string& filename) {
     return 0;
 }
 
-XdbEntry::XdbEntry() {
-    
-}
+XdbEntry::XdbEntry() {} // empty default constructor
 
-XdbEntry::XdbEntry(const XdbEntry& argument) {
-    stat = argument.stat;
-    filename = argument.filename;
-    name = argument.name;
-    bufferSize = argument.bufferSize;
-    buffer = std::make_unique<char>(*argument.buffer);
+XdbEntry::XdbEntry(const XdbEntry& oldEntry) { // phat copier
+    stat = oldEntry.stat;
+    filename = oldEntry.filename;
+    name = oldEntry.name;
+    bufferSize = oldEntry.bufferSize;
+    buffer = std::make_unique<char>(*oldEntry.buffer);
 }
 
 void Xdb::EntryFromFilename(const std::string& filename, XdbEntry& entry) {
@@ -71,7 +69,7 @@ int Xdb::PushBackFilename(const std::string& filename) {
     XdbEntry entry;
     EntryFromFilename(filename, entry);
 
-    if(entry.buffer != nullptr) entries.push_back(entry);
+    if(entry.buffer.get() != nullptr) entries.push_back(entry);
     else return 1;
 
     return 0;

@@ -28,9 +28,8 @@ class XdbEntry { // note: all char* are cstrings;
     // will read from binary until 0
 public:
     XdbEntry();
-    XdbEntry(const XdbEntry& argument);
+    XdbEntry(const XdbEntry& oldEntry); // copy constructor
 
-public:
     struct XdbStat stat; // custom stat metadata
     std::string filename;
     std::string name; // generated 'cleaner' filename
