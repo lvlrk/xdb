@@ -18,6 +18,8 @@
 
 int main(int argc, char **argv)
 {
+    Xdb x;
+
     const std::string usage = "Usage: xdb [-vfct]\n"
         "\txdb -f FILE\n"
         "\txdb [--help]\n";
@@ -45,6 +47,7 @@ int main(int argc, char **argv)
     ArgParser::Option fileOpt("file", 'f', 1);
     ArgParser::Option createOpt("create", 'c', ArgParser::Option::ARG_ANY);
     ArgParser::Option debugOpt("debug", 0, ArgParser::Option::ARG_NONE);
+    ArgParser::Option hardDebugOpt("hard-debug", 0, ArgParser::Option::ARG_NONE);
     ArgParser::Option listOpt("list", 't', ArgParser::Option::ARG_NONE);
 
     parser.AddOpt(helpOpt);
@@ -52,6 +55,7 @@ int main(int argc, char **argv)
     parser.AddOpt(fileOpt);
     parser.AddOpt(createOpt);
     parser.AddOpt(debugOpt);
+    parser.AddOpt(hardDebugOpt);
     parser.AddOpt(listOpt);
 
     parser.Parse();
@@ -67,6 +71,10 @@ int main(int argc, char **argv)
     if(debugOpt.flag) {
         debug = 1;
     }
+    if(hardDebugOpt.flag) {
+        hardDebug = 1;
+        debug = 1;
+    }
     if(helpOpt.flag) {
         std::cout << help;
 
@@ -79,13 +87,13 @@ int main(int argc, char **argv)
     }
     if(createOpt.flag) {
         if(fileName != "") {
-            Xdb x;
-
             for(int i = 0; i < createOpt.args.size(); i++) {
                 if(createOpt.args[i] != fileName) {
                     x.PushBackFilename(createOpt.args[i]);
                 }
             }
+
+            HDEBUG("before write");
 
             x.WriteToFile(fileName);
         } else {
@@ -95,8 +103,6 @@ int main(int argc, char **argv)
     }
     if(listOpt.flag) {
         if(fileName != "") {
-            Xdb x;
-
             x.ReadFromFile(fileName);
         } else {
             std::cout << "xdb error: Missing FILE for -t\n";

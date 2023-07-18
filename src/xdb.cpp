@@ -9,20 +9,27 @@
 #include "util.h" // DEBUG
 
 int XdbStat::FromFilename(const std::string& filename) {
+    HDEBUG("[");
+    HDEBUG("{ xdbStat()");
     XdbStat xdbStat;
+    HDEBUG("}");
 
     struct stat st;
 
-    if(stat(filename.c_str(), &st) == -1) {
+    if(stat(filename.c_str(), &st)) {
+        HDEBUG("stat bad");
         std::cout << fmt::format("{}() error: Could not stat file '{}'\n", __func__, filename);
 
         DEBUG(strerror(errno));
     } else {
+        HDEBUG("stat good");
         xdbStat.mode = st.st_mode;
         xdbStat.atime = st.st_atime;
         xdbStat.mtime = st.st_mtime;
         xdbStat.ctime = st.st_ctime;
     }
+
+    HDEBUG("]");
 
     return 0;
 }
@@ -30,15 +37,19 @@ int XdbStat::FromFilename(const std::string& filename) {
 XdbEntry::XdbEntry() {} // empty default constructor
 
 XdbEntry::XdbEntry(const XdbEntry& oldEntry) { // phat copier
+    HDEBUG("copy=[");
     stat = oldEntry.stat;
     filename = oldEntry.filename;
     name = oldEntry.name;
     bufferSize = oldEntry.bufferSize;
     buffer = std::make_unique<char>(*oldEntry.buffer);
+    HDEBUG("]");
 }
 
 void Xdb::EntryFromFilename(const std::string& filename, XdbEntry& entry) {
+    HDEBUG("{ xdbStat()");
     XdbStat xdbStat;
+    HDEBUG("}");
 
     xdbStat.FromFilename(filename);
     entry.stat = xdbStat;
@@ -56,19 +67,24 @@ void Xdb::EntryFromFilename(const std::string& filename, XdbEntry& entry) {
 
     inf.seekg(0);
 
+    HDEBUG("buffer create");
     entry.buffer = std::make_unique<char>(entry.bufferSize);
 
+    HDEBUG("buffer read");
     inf.read(entry.buffer.get(), entry.bufferSize);
-
-    inf.close();
+    HDEBUG("buffer readed");
 }
 
 int Xdb::PushBackFilename(const std::string& filename) {
     if(filename == "") return 1;
 
+    HDEBUG("entry init");
     XdbEntry entry;
+    HDEBUG("after");
     EntryFromFilename(filename, entry);
+    HDEBUG("done");
 
+    HDEBUG("check  entry");
     if(entry.buffer.get() != nullptr) entries.push_back(entry);
     else return 1;
 
@@ -82,12 +98,10 @@ int Xdb::ReadFromFile(const std::string& filename) {
     if(!inf.is_open()) return 1;
 
     char magic[4];
-    std::string tmpTag;
-    char c;
 
     inf.read(magic, 4);
 
-    if(std::string(magic) != "xdba") goto error;
+    if(std::string(magic) != "xdba") return 1;
 
     int tmp;
 
@@ -98,24 +112,27 @@ int Xdb::ReadFromFile(const std::string& filename) {
     entries.resize(tmp);
 
     for(int i = 0; i < tags.size(); i++) {
-        tmpTag = "";
-
-        while(inf.read(&c, 1) && c != 0) {
-            tmpTag += c;
-        }
-
-        std::cout << tmpTag << '\n';
+        tags[i] = ReadStringFromFile(inf);
+        HDEBUG(tags[i]);
     }
 
-    std::cout << inf.tellg() << '\n';
+    for(int i = 0; i < entries.size(); i++) {
+        inf.read(reinterpret_cast<char*>(&entries[i].stat), 16);
 
-    inf.close();
+        entries[i].filename = ReadStringFromFile(inf);
+        HDEBUG(entries[i].filename);
+
+        entries[i].name = ReadStringFromFile(inf);
+        HDEBUG(entries[i].name);
+
+        fmt::print("{}({})\n", entries[i].filename, entries[i].name);
+
+        inf.read(reinterpret_cast<char*>(&entries[i].bufferSize), 4);
+        entries[i].buffer = std::make_unique<char>(entries[i].bufferSize);
+        inf.read(entries[i].buffer.get(), entries[i].bufferSize);
+    }
 
     return 0;
-error:
-    if(inf.is_open()) inf.close();
-
-    return 1;
 }
 
 int Xdb::WriteToFile(const std::string& filename) {
