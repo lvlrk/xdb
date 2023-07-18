@@ -3,7 +3,10 @@
 #include <fstream> // std::ifstream
 #include <fmt/core.h>
 #include <sys/stat.h>
+#include <cstring> // std::strerror
+#include <errno.h>
 #include "xdb.h"
+#include "debug.h"
 
 XdbStat EmptyXdbStat() {
   XdbStat xdbStat;
@@ -19,18 +22,17 @@ XdbStat EmptyXdbStat() {
 XdbStat Xdb::XdbStatFromFilename(const std::string& filename) {
   XdbStat xdbStat = EmptyXdbStat();
 
-  struct stat* st;
-  stat(filename.c_str(), st);
+  struct stat st;
 
-  if(st == nullptr)  {
-    std::cerr << fmt::format("{}(): Failed to get stat from file '{}'\n", __func__, filename);
+  if(stat(filename.c_str(), &st)) {
+    std::cerr << fmt::format("{}(): Could not stat file '{}'\n", __func__, filename);
 
-    return xdbStat;
+    DEBUG(strerror(errno));
   } else {
-    xdbStat.mode = st->st_mode;
-    xdbStat.atime = st->st_atime;
-    xdbStat.mtime = st->st_mtime;
-    xdbStat.ctime = st->st_ctime;
+    xdbStat.mode = st.st_mode;
+    xdbStat.atime = st.st_atime;
+    xdbStat.mtime = st.st_mtime;
+    xdbStat.ctime = st.st_ctime;
   }
 
   return xdbStat;
@@ -70,7 +72,7 @@ int Xdb::PushBackFilename(const std::string& filename) {
 
   struct XdbEntry entry = EntryFromFilename(filename);
 
-  if(entry.buffer != nullptr) entries.push_back(EntryFromFilename(filename));
+  if(entry.buffer != nullptr) entries.push_back(entry);
   else return 1;
 
   return 0;

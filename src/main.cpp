@@ -4,13 +4,15 @@
 
 #if PROG == P_XDB
 #define VERSION_MAX 0
-#define VERSION_MIN 3
+#define VERSION_MIN 4
 
 #include <iostream>
 #include <string>
 #include <fmt/core.h>
 #include <vector>
 #include "ap.h"
+#include "xdb.h"
+#include "debug.h"
 
 int main(int argc, char **argv)
 {
@@ -37,15 +39,15 @@ int main(int argc, char **argv)
 
   ArgParser::Option helpOpt("help", 0, ArgParser::Option::ARG_NONE);
   ArgParser::Option versionOpt("version", 'v', ArgParser::Option::ARG_NONE);
-  ArgParser::Option testOpt("test", 't', ArgParser::Option::ARG_NONE);
   ArgParser::Option fileOpt("file", 'f', 1);
   ArgParser::Option createOpt("create", 'c', ArgParser::Option::ARG_ANY);
+  ArgParser::Option debugOpt("debug", 0, ArgParser::Option::ARG_NONE);
 
   parser.AddOpt(helpOpt);
   parser.AddOpt(versionOpt);
-  parser.AddOpt(testOpt);
   parser.AddOpt(fileOpt);
   parser.AddOpt(createOpt);
+  parser.AddOpt(debugOpt);
 
   parser.Parse();
 
@@ -57,6 +59,9 @@ int main(int argc, char **argv)
       fileName = fileOpt.args[fileOpt.argType - 1];
     }
   }
+  if(debugOpt.flag) {
+    debug = 1;
+  }
   if(helpOpt.flag) {
     std::cout << help;
 
@@ -67,15 +72,17 @@ int main(int argc, char **argv)
 
     return 0;
   }
-  if(testOpt.flag) {
-    std::cout << "test\n";
-  }
   if(createOpt.flag) {
     if(fileName != "") {
+      Xdb x;
+
       for(int i = 0; i < createOpt.args.size(); i++) {
-        if(createOpt.args[i] != fileName)
-          std::cout << createOpt.args[i] << '\n';
+        if(createOpt.args[i] != fileName) {
+          x.PushBackFilename(createOpt.args[i]);
+        }
       }
+
+      x.WriteToFile(fileName);
     } else {
       std::cerr << "xdb error: Missing FILE for -c\n";
       return 1;
