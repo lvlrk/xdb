@@ -60,6 +60,8 @@ void ArgParser::ParseArgs(int i, int j) {
     while(argv[i + k]) {
       if(OptionType(argv[i + k]) == OPT_NO) {
         opts[j].get().args.push_back(argv[i + k]);
+      } else {
+          break;
       }
 
       k++;
