@@ -36,13 +36,15 @@ int XdbStat::FromFilename(const std::string& filename) {
 
 XdbEntry::XdbEntry() {} // empty default constructor
 
-XdbEntry::XdbEntry(const XdbEntry& oldEntry) { // phat copier
+XdbEntry::XdbEntry(const XdbEntry& oldEntry)
+    :
+        buffer(std::move(oldEntry.buffer))
+{ // phat copier
     HDEBUG("copy=[");
     stat = oldEntry.stat;
     filename = oldEntry.filename;
     name = oldEntry.name;
     bufferSize = oldEntry.bufferSize;
-    buffer = std::make_unique<char[]>(*oldEntry.buffer.get());
     HDEBUG("]");
 }
 
@@ -56,7 +58,6 @@ void Xdb::EntryFromFilename(const std::string& filename, XdbEntry& entry) {
     entry.filename = filename;
     entry.name = GenerateName(filename);
     entry.bufferSize = 0; // for now
-    entry.buffer = nullptr; // for now
 
     std::ifstream inf(filename, std::ios::binary | std::ios::ate);
     if(!inf.is_open()) {
@@ -68,10 +69,10 @@ void Xdb::EntryFromFilename(const std::string& filename, XdbEntry& entry) {
     inf.seekg(0);
 
     HDEBUG("buffer create");
-    entry.buffer = std::unique_ptr<char[]>(new char[entry.bufferSize]);
+    entry.buffer = std::vector<char>(entry.bufferSize);
 
     HDEBUG("buffer read");
-    inf.read(entry.buffer.get(), entry.bufferSize);
+    inf.read(entry.buffer.data(), entry.bufferSize);
     HDEBUG("buffer readed");
 }
 
@@ -85,7 +86,7 @@ int Xdb::PushBackFilename(const std::string& filename) {
     HDEBUG("done");
 
     HDEBUG("check  entry");
-    if(entry.buffer.get() != nullptr) entries.push_back(entry);
+    if(entry.buffer.size() != 0) entries.push_back(entry);
     else return 1;
 
     return 0;
@@ -128,8 +129,8 @@ int Xdb::ReadFromFile(const std::string& filename) {
         fmt::print("{}({})\n", entries[i].filename, entries[i].name);
 
         inf.read(reinterpret_cast<char*>(&entries[i].bufferSize), 4);
-        entries[i].buffer = std::unique_ptr<char[]>(new char[entries[i].bufferSize]);
-        inf.read(reinterpret_cast<char*>(*entries[i].buffer), entries[i].bufferSize);
+        entries[i].buffer = std::vector<char>(entries[i].bufferSize);
+        inf.read(reinterpret_cast<char*>(entries[i].buffer.data()), entries[i].bufferSize);
     }
 
     return 0;
@@ -175,7 +176,7 @@ int Xdb::WriteToFile(const std::string& filename) {
         // buffer
         outf.write(reinterpret_cast<char*>(&entries[i].bufferSize), 4);
         HDEBUG("burh");
-        outf.write(entries[i].buffer.get(), entries[i].bufferSize);
+        outf.write(entries[i].buffer.data(), entries[i].bufferSize);
         HDEBUG("biggie");
     }
 
