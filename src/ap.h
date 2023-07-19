@@ -22,6 +22,7 @@ class ArgParser
                 bool flag = false;
                 int argType = ARG_NONE;
                 std::vector<std::string> args;
+                std::string caller = "";
             };
 
         enum OptionType {

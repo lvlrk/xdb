@@ -93,6 +93,7 @@ void ArgParser::Parse()
                 {
                     if(std::string(carg) == opts[j].get().longName) {
                         opts[j].get().flag = true;
+                        opts[j].get().caller = fmt::format("--{:s}", carg);
                         unrecognized = false;
 
                         if(opts[j].get().argType != Option::ARG_NONE) {
@@ -118,6 +119,7 @@ void ArgParser::Parse()
                     for(int k = 0; k < opts.size(); k++) {
                         if(copt == opts[k].get().shortName) {
                             opts[k].get().flag = true;
+                            opts[k].get().caller = fmt::format("-{:c}", copt);
                             unrecognized = false;
 
                             if(opts[k].get().argType != Option::ARG_NONE) {

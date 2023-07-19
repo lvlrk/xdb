@@ -3,6 +3,8 @@ old/*.o
 old/xdb
 old/test.xdb
 
+# new
 *.o
 xdb
 *.xdb
+styles/
