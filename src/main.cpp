@@ -117,6 +117,8 @@ int main(int argc, char **argv)
         }
     }
 
+    HDEBUG("what the fuck");
+
     return 0;
 }
 #elif PROG == P_READTEST
