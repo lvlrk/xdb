@@ -87,15 +87,22 @@ int main(int argc, char **argv)
     }
     if(createOpt.flag) {
         if(fileName != "") {
+            HDEBUG("hi");
+
             for(int i = 0; i < createOpt.args.size(); i++) {
+                HDEBUG(fmt::format("{}", i));
                 if(createOpt.args[i] != fileName) {
+                    HDEBUG(createOpt.args[i]);
                     x.PushBackFilename(createOpt.args[i]);
                 }
+                HDEBUG("yo");
             }
 
             HDEBUG("before write");
 
             x.WriteToFile(fileName);
+
+            HDEBUG("after write");
         } else {
             std::cout << "xdb error: Missing FILE for -c\n";
             return 1;

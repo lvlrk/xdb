@@ -15,6 +15,6 @@ extern int debug;
 extern int hardDebug;
 
 #define DEBUG(s) if(debug) fmt::print("{}(): {}\n", __func__, s)
-#define HDEBUG(s) if(hardDebug) fmt::print("{}() +{}.{}: {}\n", __func__, __FILE__, __LINE__, s);
+#define HDEBUG(s) if(hardDebug) fmt::print("{}:{}: {}(): {}\n", __FILE__, __LINE__, __func__, s);
 
 std::string ReadStringFromFile(std::ifstream& inf);

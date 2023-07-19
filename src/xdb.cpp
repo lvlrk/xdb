@@ -159,6 +159,7 @@ int Xdb::WriteToFile(const std::string& filename) {
         outf.write(tags[i].c_str(), tags[i].size() + 1);
     }
 
+    HDEBUG("whatup");
     for(int i = 0; i < entries.size(); i++) {
         // stat
 
@@ -173,10 +174,14 @@ int Xdb::WriteToFile(const std::string& filename) {
 
         // buffer
         outf.write(reinterpret_cast<char*>(&entries[i].bufferSize), 4);
+        HDEBUG("burh");
         outf.write(entries[i].buffer.get(), entries[i].bufferSize);
+        HDEBUG("biggie");
     }
 
     outf.close();
+
+    HDEBUG("ok");
 
     return 0;
 }
