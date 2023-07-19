@@ -72,16 +72,24 @@ void ArgParser::ParseArgs(int i, int j) {
 void ArgParser::Parse()
 {
     char *carg;
+    char *arga = nullptr;
+    std::string sexy;
     char copt; // used for short options
     bool unrecognized = false;
     int tmp;
     int optType;
+    int idx;
+    int tmp2;
+    std::string scarg;
+    std::string scargo;
 
     for(int i = 1; i < argc; i++) {
         // resetting the 'temporary' variables
         unrecognized = true;
-        carg = argv[0];
+        carg = argv[i];
         tmp = 0;
+        arga = nullptr;
+        tmp2 = 0;
 
         optType = OptionType(argv[i]);
         switch(optType)
@@ -91,18 +99,37 @@ void ArgParser::Parse()
 
                 for(int j = 0; j < opts.size(); j++)
                 {
+                    idx = std::string(carg).find('=');
+
+                    if(idx != std::string::npos) {
+                        scarg = carg;
+                        scargo = scarg;
+
+                        arga = const_cast<char*>(scargo.substr(idx + 1).c_str());
+                        sexy = arga;
+
+                        carg = const_cast<char*>(scargo.erase(idx).c_str());
+                    }
+
                     if(std::string(carg) == opts[j].get().longName) {
                         opts[j].get().flag = true;
                         opts[j].get().caller = fmt::format("--{:s}", carg);
+
+                        if(idx == std::string::npos) {
+                            tmp2 = opts[j].get().argType;
+                            opts[j].get().args.resize(tmp2);
+
+                            opts[j].get().args[tmp2 - 1] = sexy;
+                        }
                         unrecognized = false;
 
-                        if(opts[j].get().argType != Option::ARG_NONE) {
+                        if(opts[j].get().argType != Option::ARG_NONE && idx != std::string::npos) {
                             ParseArgs(i, j);
                         }
                     }
                 }
 
-                if(unrecognized) {
+                if(unrecognized && arga == nullptr) {
                     std::cerr << fmt::format("{}: unrecognized option --{}\n",
                                              program, carg);
                 }

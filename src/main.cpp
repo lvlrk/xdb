@@ -39,7 +39,7 @@ private:
 
     /* Program information */
     std::string program = "xdb";
-    struct Version version = {0, 1, 1};
+    struct Version version = {0, 1, 2};
 
     /* Option-objects-related */
     ArgParser::Option optHelp;
@@ -77,11 +77,11 @@ int App::Help() {
                     "# Verbosely create archive.xdb from image1, image2, and video\n"
                     "{:s} -cvf archive.xdb image1.png image2.jpeg video.mp4\n\n"
 
-                    "      --help       display this help and exit\n"
-                    "      --version    output version information and exit\n"
-                    "  -v, --verbose    verbosely list files processed\n"
-                    "  -f, --file       use archive file\n"
-                    "  -c, --create     create archive file\n\n"
+                    "      --help               display this help and exit\n"
+                    "      --version            output version information and exit\n"
+                    "  -v, --verbose            verbosely list files processed\n"
+                    "  -f, --file=FILE          use archive FILE\n"
+                    "  -c, --create=<FILE(s)>   create archive file from <FILE(s)>\n\n"
 
                     "Report bugs to https://github.com/lvlrk/xdb/issues\n",
                     program, program);
