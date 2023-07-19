@@ -6,30 +6,19 @@
 #include <cstring> // std::strerror
 #include <errno.h> // errno
 #include "xdb.h"
-#include "util.h" // DEBUG
+#include "util.h" // ReadStringFromFile
 
 int XdbStat::FromFilename(const std::string& filename) {
-    HDEBUG("[");
-    HDEBUG("{ xdbStat()");
-    XdbStat xdbStat;
-    HDEBUG("}");
-
     struct stat st;
 
-    if(stat(filename.c_str(), &st)) {
-        HDEBUG("stat bad");
-        std::cout << fmt::format("{}() error: Could not stat file '{}'\n", __func__, filename);
-
-        DEBUG(strerror(errno));
+    if(stat(filename.c_str(), &st) == -1) {
+        std::cerr << fmt::format("{}() error: Could not stat file '{}'\n", __func__, filename);
     } else {
-        HDEBUG("stat good");
-        xdbStat.mode = st.st_mode;
-        xdbStat.atime = st.st_atime;
-        xdbStat.mtime = st.st_mtime;
-        xdbStat.ctime = st.st_ctime;
+        mode = st.st_mode;
+        atime = st.st_atime;
+        mtime = st.st_mtime;
+        ctime = st.st_ctime;
     }
-
-    HDEBUG("]");
 
     return 0;
 }
@@ -40,18 +29,14 @@ XdbEntry::XdbEntry(const XdbEntry& oldEntry)
     :
         buffer(std::move(oldEntry.buffer))
 { // phat copier
-    HDEBUG("copy=[");
     stat = oldEntry.stat;
     filename = oldEntry.filename;
     name = oldEntry.name;
     bufferSize = oldEntry.bufferSize;
-    HDEBUG("]");
 }
 
 void Xdb::EntryFromFilename(const std::string& filename, XdbEntry& entry) {
-    HDEBUG("{ xdbStat()");
     XdbStat xdbStat;
-    HDEBUG("}");
 
     xdbStat.FromFilename(filename);
     entry.stat = xdbStat;
@@ -61,31 +46,24 @@ void Xdb::EntryFromFilename(const std::string& filename, XdbEntry& entry) {
 
     std::ifstream inf(filename, std::ios::binary | std::ios::ate);
     if(!inf.is_open()) {
-        std::cout << fmt::format("{}() error: Could not open file '{}'\n", __func__, filename);
+        std::cerr << fmt::format("{}() error: Could not open file '{}'\n", __func__, filename);
     }
 
     entry.bufferSize = inf.tellg();
 
     inf.seekg(0);
 
-    HDEBUG("buffer create");
     entry.buffer = std::vector<char>(entry.bufferSize);
 
-    HDEBUG("buffer read");
     inf.read(entry.buffer.data(), entry.bufferSize);
-    HDEBUG("buffer readed");
 }
 
 int Xdb::PushBackFilename(const std::string& filename) {
     if(filename == "") return 1;
 
-    HDEBUG("entry init");
     XdbEntry entry;
-    HDEBUG("after");
     EntryFromFilename(filename, entry);
-    HDEBUG("done");
 
-    HDEBUG("check  entry");
     if(entry.buffer.size() != 0) entries.push_back(entry);
     else return 1;
 
@@ -114,19 +92,14 @@ int Xdb::ReadFromFile(const std::string& filename) {
 
     for(int i = 0; i < tags.size(); i++) {
         tags[i] = ReadStringFromFile(inf);
-        HDEBUG(tags[i]);
     }
 
     for(int i = 0; i < entries.size(); i++) {
         inf.read(reinterpret_cast<char*>(&entries[i].stat), 16);
 
         entries[i].filename = ReadStringFromFile(inf);
-        HDEBUG(entries[i].filename);
 
         entries[i].name = ReadStringFromFile(inf);
-        HDEBUG(entries[i].name);
-
-        fmt::print("{}({})\n", entries[i].filename, entries[i].name);
 
         inf.read(reinterpret_cast<char*>(&entries[i].bufferSize), 4);
         entries[i].buffer = std::vector<char>(entries[i].bufferSize);
@@ -160,10 +133,8 @@ int Xdb::WriteToFile(const std::string& filename) {
         outf.write(tags[i].c_str(), tags[i].size() + 1);
     }
 
-    HDEBUG("whatup");
     for(int i = 0; i < entries.size(); i++) {
         // stat
-
         outf.write(reinterpret_cast<char*>(&entries[i].stat.mode), 4);
         outf.write(reinterpret_cast<char*>(&entries[i].stat.atime), 4);
         outf.write(reinterpret_cast<char*>(&entries[i].stat.mtime), 4);
@@ -175,14 +146,10 @@ int Xdb::WriteToFile(const std::string& filename) {
 
         // buffer
         outf.write(reinterpret_cast<char*>(&entries[i].bufferSize), 4);
-        HDEBUG("burh");
         outf.write(entries[i].buffer.data(), entries[i].bufferSize);
-        HDEBUG("biggie");
     }
 
     outf.close();
-
-    HDEBUG("ok");
 
     return 0;
 }

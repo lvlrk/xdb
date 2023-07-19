@@ -10,6 +10,8 @@
 #include <vector> // std::vector
 #include <fmt/core.h> // fmt::format
 #include "ap.h" // ArgParser
+#include "xdb.h" // Xdb
+#include "util.h" // VERBOSE
 
 class App {
 public:
@@ -37,7 +39,7 @@ private:
 
     /* Program information */
     std::string program = "xdb";
-    struct Version version = {0, 1, 0};
+    struct Version version = {0, 1, 1};
 
     /* Option-objects-related */
     ArgParser::Option optHelp;
@@ -69,14 +71,20 @@ int App::Usage() {
 int App::Help() {
     std::cout <<
         fmt::format("Usage: {:s} [OPTION...] [FILE]...\n"
-                    "The best FOSS p viewer\n\n"
+                    "The best FOSS porn viewer\n\n"
+
+                    "Examples:\n"
+                    "# Verbosely create archive.xdb from image1, image2, and video\n"
+                    "{:s} -cvf archive.xdb image1.png image2.jpeg video.mp4\n\n"
+
                     "      --help       display this help and exit\n"
                     "      --version    output version information and exit\n"
                     "  -v, --verbose    verbosely list files processed\n"
                     "  -f, --file       use archive file\n"
                     "  -c, --create     create archive file\n\n"
+
                     "Report bugs to https://github.com/lvlrk/xdb/issues\n",
-                    program);
+                    program, program);
 
     return 0;
 }
@@ -90,13 +98,13 @@ int App::Version() {
 }
 
 int App::Verbose() {
+    verbose = 1;
+
     return 0;
 }
 
 int App::File() {
-    if(optFile.args.size() == optFile.argType) {
-
-    } else {
+    if(optFile.args.size() != optFile.argType) {
         std::cerr <<
             fmt::format("{:s} error: Missing FILE argument for {:s}\n",
                         program, optFile.caller);
@@ -110,9 +118,18 @@ int App::File() {
 int App::Create() {
     if(optFile.args.size() == optFile.argType) {
         if(optCreate.args.size() > 0) {
+            Xdb xdbFile;
+
             for(const std::string& file: optCreate.args) {
-                if(file != optFile.args[0]) std::cout << fmt::format("{:s}\n", file);
+                if(file != optFile.args[0]) {
+                    xdbFile.PushBackFilename(file);
+                    VERBOSE(file);
+                }
             }
+
+            xdbFile.WriteToFile(optFile.args[0]);
+
+            return 0;
         } else {
             std::cerr <<
                 fmt::format("{:s} error: Missing FILEs for {:s}\n",

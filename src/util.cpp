@@ -1,7 +1,6 @@
 #include "util.h"
 
-int debug = 0;
-int hardDebug = 0;
+int verbose = 0;
 
 std::string ReadStringFromFile(std::ifstream& inf) {
     std::string tmp = "";

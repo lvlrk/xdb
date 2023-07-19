@@ -1,8 +1,8 @@
 # xdb
-The best FOSS p viewer
+The best FOSS porn viewer
 
 # Info
-Version: 0.1.0 [debug build]
+Version: 0.1.1
 `./src/`: C headers and source code
 `./build.sh`: Run to build
 

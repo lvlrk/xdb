@@ -1,7 +1,9 @@
 #pragma once
 
-#include <string>
-#include <fstream>
+#include <iostream> // std::cout
+#include <string> // std::string
+#include <fstream> // std::ifstream
+#include <fmt/core.h> // fmt::format
 
 #ifdef _WIN32
 #define DIRSEP "\\"
@@ -9,12 +11,8 @@
 #define DIRSEP "/"
 #endif
 
-#include <fmt/core.h>
+extern int verbose;
 
-extern int debug;
-extern int hardDebug;
-
-#define DEBUG(s) if(debug) fmt::print("{}(): {}\n", __func__, s)
-#define HDEBUG(s) if(hardDebug) fmt::print("{}:{}: {}(): {}\n", __FILE__, __LINE__, __func__, s);
+#define VERBOSE(s) if(verbose == 1) std::cout << fmt::format("{:s}\n", s);
 
 std::string ReadStringFromFile(std::ifstream& inf);
