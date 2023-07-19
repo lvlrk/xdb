@@ -17,15 +17,9 @@ public:
     App(int argc, char **argv);
     int Run();
 private:
-    class Usage {
-    public:
-        Usage(App& app);
-        int Run();
-    private:
-        App& app;
-        std::string text;
-    };
+    int Usage();
 
+private:
     struct Version {
         int max;
         int mid;
@@ -41,24 +35,20 @@ private:
     std::string program = "xdb";
     struct Version version = {0, 0, 1};
 
-    /* Options-related */
-    Usage usage;
-
     /* Option-objects-related */
     ArgParser::Option optHelp;
     std::vector<std::reference_wrapper<ArgParser::Option>> opts;
 };
 
-App::Usage::Usage(App& app):
-app{app} {
-    text = fmt::format("Usage: {:s}\n", app.program);
+int App::Usage() {
+    std::string text;
 
-    for(ArgParser::Option opt: app.opts) {
-        text += fmt::format("\t{:s} [--{:s}]\n", app.program, opt.longName);
+    text = fmt::format("Usage: {:s}\n", program);
+
+    for(ArgParser::Option opt: opts) {
+        text += fmt::format("\t{:s} [--{:s}]\n", program, opt.longName);
     }
-}
 
-int App::Usage::Run() {
     std::cerr << text;
 
     return 1;
@@ -69,9 +59,6 @@ App::App(int argc, char **argv):
     argc{argc},
     argv{argv},
     argParser(argc, argv),
-
-    /* Options-related */
-    usage(*this),
     
     /* Option-objects-related */
 optHelp("help", 0, ArgParser::Option::ARG_NONE) {
@@ -80,7 +67,7 @@ optHelp("help", 0, ArgParser::Option::ARG_NONE) {
 
 int App::Run() {
     if(argc < 2) {
-        return usage.Run();
+        return Usage();
     }
 
     for(ArgParser::Option opt: opts) argParser.AddOpt(opt);
