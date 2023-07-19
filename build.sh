@@ -1,6 +1,11 @@
 #!/bin/sh
 
-rm -f xdb *.o
-g++ -c -Wno-enum-compare -Wno-narrowing src/*.cpp
-g++ -lraylib -lfmt -o xdb *.o
-./xdb "$@"
+CXX="g++"
+CXXFLAGS="-Wno-enum-compare -Wno-narrowing -O2 -c"
+LDFLAGS="-lraylib -lfmt"
+TARGET="xdb"
+
+rm -f $TARGET *.o
+$CXX $CXXFLAGS src/*.cpp
+$CXX $LDFLAGS -o $TARGET *.o
+./$TARGET "$@"
