@@ -71,6 +71,8 @@ public:
 
     // returns entry created from filename; returns nullptr on error
     void EntryFromFilename(const std::string& filename, XdbEntry& entry);
+
+    std::vector<XdbEntry> GetEntries();
 private:
     std::vector<std::string> tags;
     std::vector<XdbEntry> entries;

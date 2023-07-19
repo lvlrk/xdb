@@ -2,7 +2,7 @@
 The best FOSS porn viewer
 
 # Info
-Version: 0.1.2
+Version: 0.1.3
 `./src/`: C headers and source code
 `./build.sh`: Run to build
 

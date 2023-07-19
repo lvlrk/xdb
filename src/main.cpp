@@ -24,6 +24,7 @@ private:
     int Verbose();
     int File();
     int Create();
+    int List();
 
 private:
     struct Version {
@@ -39,7 +40,7 @@ private:
 
     /* Program information */
     std::string program = "xdb";
-    struct Version version = {0, 1, 2};
+    struct Version version = {0, 1, 3};
 
     /* Option-objects-related */
     ArgParser::Option optHelp;
@@ -47,6 +48,7 @@ private:
     ArgParser::Option optVerbose;
     ArgParser::Option optFile;
     ArgParser::Option optCreate;
+    ArgParser::Option optList;
     std::vector<std::reference_wrapper<ArgParser::Option>> opts;
 };
 
@@ -81,7 +83,8 @@ int App::Help() {
                     "      --version            output version information and exit\n"
                     "  -v, --verbose            verbosely list files processed\n"
                     "  -f, --file=FILE          use archive FILE\n"
-                    "  -c, --create=<FILE(s)>   create archive file from <FILE(s)>\n\n"
+                    "  -c, --create=<FILE(s)>   create archive file from <FILE(s)>\n"
+                    "  -t, --list               list archive\n\n"
 
                     "Report bugs to https://github.com/lvlrk/xdb/issues\n",
                     program, program);
@@ -148,6 +151,27 @@ int App::Create() {
     return 0;
 }
 
+int App::List() {
+    if(optFile.args.size() == optFile.argType) {
+        Xdb xdbFile;
+
+        xdbFile.ReadFromFile(optFile.args[0]);
+
+        for(XdbEntry& entry: xdbFile.GetEntries()) {
+            std::cout << entry.filename << '\n';
+        }
+    } else {
+        std::cerr <<
+            fmt::format("{:s} error: Missing file for {:s}; call -f to set file\n",
+                        program, optList.caller);
+
+        return 1;
+    }
+
+
+    return 0;
+}
+
 App::App(int argc, char **argv):
     /* Arguments-related */
     argc{argc},
@@ -159,13 +183,15 @@ App::App(int argc, char **argv):
     optVersion("version", 0, ArgParser::Option::ARG_NONE),
     optVerbose("verbose", 'v', ArgParser::Option::ARG_NONE),
     optFile("file", 'f', 1),
-optCreate("create", 'c', ArgParser::Option::ARG_ANY) {
+    optCreate("create", 'c', ArgParser::Option::ARG_ANY),
+optList("list", 't', ArgParser::Option::ARG_NONE) {
 
     opts.push_back(optHelp);
     opts.push_back(optVersion);
     opts.push_back(optVerbose);
     opts.push_back(optFile);
     opts.push_back(optCreate);
+    opts.push_back(optList);
 }
 
 int App::Run() {
@@ -191,6 +217,9 @@ int App::Run() {
     }
     if(optCreate.flag) {
         if(Create()) return 1;
+    }
+    if(optList.flag) {
+        if(List()) return 1;
     }
 
     return 0;

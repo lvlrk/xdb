@@ -8,6 +8,10 @@
 #include "xdb.h"
 #include "util.h" // ReadStringFromFile
 
+std::vector<XdbEntry> Xdb::GetEntries() {
+    return entries;
+}
+
 int XdbStat::FromFilename(const std::string& filename) {
     struct stat st;
 
@@ -98,6 +102,7 @@ int Xdb::ReadFromFile(const std::string& filename) {
         inf.read(reinterpret_cast<char*>(&entries[i].stat), 16);
 
         entries[i].filename = ReadStringFromFile(inf);
+        if(i == 0) entries[i].filename = entries[i].filename.substr(4);
 
         entries[i].name = ReadStringFromFile(inf);
 
