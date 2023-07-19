@@ -3,7 +3,6 @@ The best FOSS p viewer
 
 # Info
 Version: 0.1.0 [debug build]
-`./old/`: An archive of the old version written in C
 `./src/`: C headers and source code
 `./build.sh`: Run to build
 
