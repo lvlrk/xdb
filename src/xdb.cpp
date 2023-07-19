@@ -42,7 +42,7 @@ XdbEntry::XdbEntry(const XdbEntry& oldEntry) { // phat copier
     filename = oldEntry.filename;
     name = oldEntry.name;
     bufferSize = oldEntry.bufferSize;
-    buffer = std::make_unique<char>(*oldEntry.buffer);
+    buffer = std::make_unique<char[]>(*oldEntry.buffer.get());
     HDEBUG("]");
 }
 
@@ -68,7 +68,7 @@ void Xdb::EntryFromFilename(const std::string& filename, XdbEntry& entry) {
     inf.seekg(0);
 
     HDEBUG("buffer create");
-    entry.buffer = std::make_unique<char>(entry.bufferSize);
+    entry.buffer = std::unique_ptr<char[]>(new char[entry.bufferSize]);
 
     HDEBUG("buffer read");
     inf.read(entry.buffer.get(), entry.bufferSize);
@@ -128,8 +128,8 @@ int Xdb::ReadFromFile(const std::string& filename) {
         fmt::print("{}({})\n", entries[i].filename, entries[i].name);
 
         inf.read(reinterpret_cast<char*>(&entries[i].bufferSize), 4);
-        entries[i].buffer = std::make_unique<char>(entries[i].bufferSize);
-        inf.read(entries[i].buffer.get(), entries[i].bufferSize);
+        entries[i].buffer = std::unique_ptr<char[]>(new char[entries[i].bufferSize]);
+        inf.read(reinterpret_cast<char*>(*entries[i].buffer), entries[i].bufferSize);
     }
 
     return 0;

@@ -48,7 +48,7 @@ public:
     std::string filename;
     std::string name; // generated 'cleaner' filename
     int bufferSize;
-    std::unique_ptr<char> buffer; // file data buffer
+    std::unique_ptr<char[]> buffer; // file data buffer
 };
 
 class Xdb {
