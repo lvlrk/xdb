@@ -1,14 +1,14 @@
-#include <iostream>
-#include <fmt/core.h>
 #include "ap.h"
 #include "util.h"
+#include <fmt/core.h>
+#include <iostream>
 
-int ArgParser::OptionType(const std::string& arg) {
+int ArgParser::OptionType(const std::string &arg) {
     int ret = OPT_NO;
-    if(arg != "") {
-        if(arg[0] == '-' && arg[1] != '-') {
+    if (arg != "") {
+        if (arg[0] == '-' && arg[1] != '-') {
             ret = OPT_SHORT;
-        } else if(arg[0] == '-' && arg[1] == '-') {
+        } else if (arg[0] == '-' && arg[1] == '-') {
             ret = OPT_LONG;
         }
     }
@@ -20,45 +20,43 @@ bool ArgParser::Option::IsArgTypeSpecial() {
     return (argType == ARG_NONE || argType == ARG_ANY);
 }
 
-ArgParser::Option::Option(const std::string& longName, char shortName, int argType)
-{
+ArgParser::Option::Option(const std::string &longName, char shortName,
+        int argType) {
     this->longName = longName;
     this->shortName = shortName;
     this->argType = argType;
 
-    if(!IsArgTypeSpecial())
+    if (!IsArgTypeSpecial())
         args.resize(argType);
 }
 
-ArgParser::ArgParser(int argc, char **argv)
-{
+ArgParser::ArgParser(int argc, char **argv) {
     this->argc = argc;
     this->argv = argv;
 
-    if(argv[0][0] == '.' && argv[0][1] == *DIRSEP) program = argv[0] + 2; // remove './' from argv[0]
-    else program = argv[0];
+    if (argv[0][0] == '.' && argv[0][1] == *DIRSEP)
+        program = argv[0] + 2; // remove './' from argv[0]
+    else
+        program = argv[0];
 }
 
-void ArgParser::AddOpt(Option& opt)
-{
-    opts.push_back(opt);
-}
+void ArgParser::AddOpt(Option &opt) { opts.push_back(opt); }
 
 void ArgParser::ParseArgs(int i, int j) {
-    if(opts[j].get().argType != Option::ARG_ANY) {
+    if (opts[j].get().argType != Option::ARG_ANY) {
         int l = 0;
-        for(int k = 0; k < opts[j].get().argType; k++) {
-            if(argv[i + k + 1]) {
+        for (int k = 0; k < opts[j].get().argType; k++) {
+            if (argv[i + k + 1]) {
                 opts[j].get().args[l++] = std::string(argv[i + k + 1]);
             } else {
                 opts[j].get().args.push_back("");
             }
         }
-    } else if(opts[j].get().argType == Option::ARG_ANY) {
+    } else if (opts[j].get().argType == Option::ARG_ANY) {
         int k = 1;
 
-        while(argv[i + k]) {
-            if(OptionType(argv[i + k]) == OPT_NO) {
+        while (argv[i + k]) {
+            if (OptionType(argv[i + k]) == OPT_NO) {
                 opts[j].get().args.push_back(argv[i + k]);
             } else {
                 break;
@@ -69,8 +67,7 @@ void ArgParser::ParseArgs(int i, int j) {
     }
 }
 
-void ArgParser::Parse()
-{
+void ArgParser::Parse() {
     char *carg;
     char *arga = nullptr;
     std::string sexy;
@@ -83,7 +80,7 @@ void ArgParser::Parse()
     std::string scarg;
     std::string scargo;
 
-    for(int i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         // resetting the 'temporary' variables
         unrecognized = true;
         carg = argv[i];
@@ -92,46 +89,48 @@ void ArgParser::Parse()
         tmp2 = 0;
 
         optType = OptionType(argv[i]);
-        switch(optType)
-        {
+        switch (optType) {
             case OPT_LONG:
                 carg = argv[i] + 2; // remove '--' from argv[i]
 
-                for(int j = 0; j < opts.size(); j++)
-                {
+                for (int j = 0; j < opts.size(); j++) {
                     idx = std::string(carg).find('=');
 
-                    if(idx != std::string::npos) {
+                    if (idx != std::string::npos) {
                         scarg = carg;
                         scargo = scarg;
 
-                        arga = const_cast<char*>(scargo.substr(idx + 1).c_str());
+                        arga = const_cast<char *>(scargo.substr(idx + 1).c_str());
                         sexy = arga;
 
-                        carg = const_cast<char*>(scargo.erase(idx).c_str());
+                        carg = const_cast<char *>(scargo.erase(idx).c_str());
                     }
 
-                    if(std::string(carg) == opts[j].get().longName) {
+                    if (std::string(carg) == opts[j].get().longName) {
                         opts[j].get().flag = true;
                         opts[j].get().caller = fmt::format("--{:s}", carg);
 
-                        if(idx == std::string::npos) {
+                        if (idx == std::string::npos) {
                             tmp2 = opts[j].get().argType;
-                            opts[j].get().args.resize(tmp2);
 
-                            opts[j].get().args[tmp2 - 1] = sexy;
+                            if (tmp2 != 0) {
+                                opts[j].get().args.resize(tmp2);
+
+                                opts[j].get().args[tmp2 - 1] = sexy;
+                            }
                         }
                         unrecognized = false;
 
-                        if(opts[j].get().argType != Option::ARG_NONE && idx != std::string::npos) {
+                        if (opts[j].get().argType != Option::ARG_NONE &&
+                                idx != std::string::npos) {
                             ParseArgs(i, j);
                         }
                     }
                 }
 
-                if(unrecognized && arga == nullptr) {
-                    std::cerr << fmt::format("{}: unrecognized option --{}\n",
-                                             program, carg);
+                if (unrecognized && arga == nullptr) {
+                    std::cerr << fmt::format("{}: unrecognized option --{}\n", program,
+                            carg);
                 }
 
                 break;
@@ -139,17 +138,16 @@ void ArgParser::Parse()
                 carg = argv[i] + 1; // remove '-' from argv[i]
                 copt = 0;
 
-                for(int j = 0; j < std::string(carg).size(); j++)
-                {
+                for (int j = 0; j < std::string(carg).size(); j++) {
                     copt = carg[j];
 
-                    for(int k = 0; k < opts.size(); k++) {
-                        if(copt == opts[k].get().shortName) {
+                    for (int k = 0; k < opts.size(); k++) {
+                        if (copt == opts[k].get().shortName) {
                             opts[k].get().flag = true;
                             opts[k].get().caller = fmt::format("-{:c}", copt);
                             unrecognized = false;
 
-                            if(opts[k].get().argType != Option::ARG_NONE) {
+                            if (opts[k].get().argType != Option::ARG_NONE) {
                                 ParseArgs(i, k);
                             }
                         } else {
@@ -158,9 +156,9 @@ void ArgParser::Parse()
                     }
                 }
 
-                if(unrecognized) {
-                    std::cerr << fmt::format("{}: unrecognized option -{}\n",
-                                             program, carg[tmp]);
+                if (unrecognized) {
+                    std::cerr << fmt::format("{}: unrecognized option -{}\n", program,
+                            carg[tmp]);
                 }
 
                 break;
