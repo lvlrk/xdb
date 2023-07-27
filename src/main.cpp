@@ -1,8 +1,9 @@
 /* Enum of different programs */
 #define XDB_P_RELEASE 0
 #define XDP_P_READTEST 1
+#define XDB_P_NEWAP 2
 
-#define XDB_PROGRAM XDB_P_RELEASE // program enum number
+#define XDB_PROGRAM XDB_P_NEWAP // program enum number
 
 #if XDB_PROGRAM == XDB_P_RELEASE
 #include "ap.h"       // ArgParser
@@ -241,4 +242,25 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-#endif /* XDB_P_READTEST */
+#elif XDB_PROGRAM == XDB_P_NEWAP /* XDB_P_READTEST */
+#include <iostream>
+#include "ap.h"
+
+int main(int argc, char **argv) {
+    Parser argParser(argc, argv);
+
+    Opt testOpt("test", 't', AC_NONE);
+
+    argParser.opts.push_back(testOpt);
+
+    argParser.Parse();
+
+    if(testOpt.set) {
+        std::cout << "wow! test opt has been passed! no shit!" << std::endl;
+
+        return 0;
+    }
+
+    return 0;
+}
+#endif
