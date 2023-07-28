@@ -249,14 +249,15 @@ int main(int argc, char **argv) {
 int main(int argc, char **argv) {
     Parser argParser(argc, argv);
 
-    Opt testOpt("test", 't', AC_NONE);
+    Opt testOpt("test", 't', 1);
 
     argParser.opts.push_back(testOpt);
 
     argParser.Parse();
 
     if(testOpt.set) {
-        std::cout << "wow! test opt has been passed! no shit!" << std::endl;
+        if(testOpt.args[0] != "") std::cout << "wow! test opt has been passed! no shit!" << std::endl;
+        else std::cerr << "missing argument" << std::endl;
 
         return 0;
     }

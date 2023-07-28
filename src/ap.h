@@ -34,6 +34,8 @@ private:
     };
     int GetOptType(const std::string& arg);
     std::string GetOpt(const std::string& arg, int optType = -1);
+    bool ParseOptArgs(Opt& opt); // returns true if
+                                 // all option's arguments are found
 
     int argc;
     char **argv;

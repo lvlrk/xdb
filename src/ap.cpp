@@ -26,14 +26,18 @@ argv{argv} {
 }
 
 void Parser::Parse() {
-    for(const std::string& cArg: args) {
-        std::string cGetOpt = GetOpt(cArg);
-        int cGetOptType = GetOptType(cArg);
+    for(int i = 0; i < args.size(); i++) {
+        std::string cGetOpt = GetOpt(args[i]);
+        int cGetOptType = GetOptType(args[i]);
 
         for(Opt& cOpt: opts) {
             switch(cGetOptType) {
             case OPT_LONG:
-                if(cGetOpt == cOpt.nLong) cOpt.set = true;
+                if(cGetOpt == cOpt.nLong) {
+                    cOpt.set = true;
+
+                    ParseOptArgs(cOpt);
+                }
 
                 break;
             case OPT_SHORT:
@@ -58,7 +62,6 @@ int Parser::GetOptType(const std::string& arg) {
         else if(arg.size() > 2) return OPT_MSHORT;
     }
 
-    
     return OPT_NONE;
 }
 
@@ -81,4 +84,36 @@ std::string Parser::GetOpt(const std::string& arg, int optType) {
     default:
         return arg;
     }
+}
+
+bool Parser::ParseOptArgs(Opt& opt) {
+    if(opt.argCount != AC_NONE) {
+        if(opt.argCount == AC_VARI) {
+            int i = 0; // args iterator
+            int j = 0; // option argument iterator
+
+            while(GetOptType(args[i]) == OPT_NONE) {
+                opt.args.resize(j + 1);
+                opt.args[j] = args[i];
+
+                i++;
+                j++;
+            }
+
+            if(j < 1) return false;
+            else return true;
+        } else {
+            opt.args.resize(opt.argCount);
+            int i = 0;
+
+            for(const std::string& cArg: args) {
+                if(GetOptType(cArg) == OPT_NONE) opt.args[i++] = cArg;
+            }
+
+            if(i == opt.argCount - 1) return true;
+            else return false;
+        }
+    }
+
+    return true;
 }
